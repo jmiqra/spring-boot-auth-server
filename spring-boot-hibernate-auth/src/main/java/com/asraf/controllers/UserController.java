@@ -23,9 +23,7 @@ import com.asraf.dtos.mapper.UserMapper;
 import com.asraf.dtos.request.entities.UserRequestDto;
 import com.asraf.dtos.response.entities.UserResponseDto;
 import com.asraf.entities.User;
-import com.asraf.models.pathvariable.ColumnPathvariable;
 import com.asraf.models.search.UserSearch;
-import com.asraf.models.search.extended.UserWithVerificationSearch;
 import com.asraf.services.UserService;
 
 @RestController
@@ -78,18 +76,6 @@ public class UserController {
 	}
 
 	/**
-	 * @SampleUrl /users/search-join-pageable?name=rats&email=ratul@test.com&creationTime=21-05-2018&page=0&size=2&sort=name,asc&sort=email,desc
-	 * @param searchItem
-	 * @param pageable
-	 * @return
-	 */
-	@GetMapping("/search-join-pageable")
-	public Page<UserResponseDto> getBySearchJoinPageable(UserWithVerificationSearch searchItem, Pageable pageable) {
-		Page<User> pagedUser = this.userService.getBySearchIntoJoiningTablePageable(searchItem, pageable);
-		return userMappper.getResponseDtos(pagedUser);
-	}
-
-	/**
 	 * @SampleUrl /users/query?search=(name==rats*;id>1,name==ratul);id=in=(2,3,4,5,6)&page=0&size=2&sort=name,asc&sort=email,desc
 	 * @param search
 	 * @param pageable
@@ -123,12 +109,6 @@ public class UserController {
 		userMappper.loadEntity(requestDto, user);
 		userService.save(user);
 		return userMappper.getResponseDto(user);
-	}
-
-	@GetMapping("/({columnName},{columnType})/distinct")
-	public Page<Object> getByDistinctColumn(ColumnPathvariable columnPathvariable, Pageable pageable) {
-		return userService.getByDistinctColumn(columnPathvariable.getColumnName(),
-				columnPathvariable.getColumnTypeEnum(), pageable);
 	}
 
 }

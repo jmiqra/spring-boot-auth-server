@@ -34,7 +34,7 @@ public class UserVerificationResource extends BaseResource {
 				.withMethod(HttpMethod.GET));
 		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByEmail(user.getEmail())).withRel("user"))
 				.withMethod(HttpMethod.GET));
-		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByName(user.getName())).withRel("user"))
+		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByName(user.getUsername())).withRel("user"))
 				.withMethod(HttpMethod.GET));
 		add(new ExtendedLink(
 				linkTo(methodOn(UserController.class).getByQuery("id==" + user.getId(), null)).withRel("user"))

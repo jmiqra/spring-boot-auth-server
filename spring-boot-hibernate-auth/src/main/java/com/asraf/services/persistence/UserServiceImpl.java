@@ -10,10 +10,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.asraf.constants.ColumnType;
 import com.asraf.entities.User;
 import com.asraf.models.search.UserSearch;
-import com.asraf.models.search.extended.UserWithVerificationSearch;
 import com.asraf.repositories.UserRepository;
 import com.asraf.rsql.CustomRsqlVisitor;
 import com.asraf.services.UserService;
@@ -73,10 +71,6 @@ public class UserServiceImpl implements UserService {
 				searchItem.getEmail(), pageable);
 	}
 
-	public Page<User> getBySearchIntoJoiningTablePageable(UserWithVerificationSearch searchItem, Pageable pageable) {
-		return userRepository.GetByUserWithVerificationSeach(searchItem, pageable);
-	}
-
 	public Page<User> getByQuery(String search, Pageable pageable) {
 		if (StringUtils.isNullOrEmpty(search))
 			return userRepository.findAll(pageable);
@@ -84,10 +78,6 @@ public class UserServiceImpl implements UserService {
 		Specification<User> spec = rootNode.accept(new CustomRsqlVisitor<User>());
 		Page<User> users = userRepository.findAll(spec, pageable);
 		return users;
-	}
-
-	public Page<Object> getByDistinctColumn(String columnName, ColumnType columnType, Pageable pageable) {
-		return userRepository.getByDistinctColumn(columnName, columnType, pageable);
 	}
 
 }
