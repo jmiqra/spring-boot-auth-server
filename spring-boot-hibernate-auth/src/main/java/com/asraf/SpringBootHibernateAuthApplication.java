@@ -9,9 +9,9 @@ import com.asraf.properties.FileStorageProperties;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ FileStorageProperties.class })
-public class SpringBootHibernateDatajpaApplication extends SpringBootServletInitializer {
+public class SpringBootHibernateAuthApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootHibernateDatajpaApplication.class, args);
+		SpringApplication.run(SpringBootHibernateAuthApplication.class, args);
 	}
 }
