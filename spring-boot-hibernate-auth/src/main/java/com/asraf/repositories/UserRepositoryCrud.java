@@ -1,5 +1,6 @@
 package com.asraf.repositories;
 
+
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,21 +14,15 @@ import com.asraf.entities.User;
 @Transactional
 public interface UserRepositoryCrud extends PagingAndSortingRepository<User, Long> {
 
-	/**
-	 * Retrieves an user by its email.
-	 * 
-	 * @param email
-	 * @return The user having the passed email or null if no user is found
-	 */
 	public User findByEmail(String email);
 
-	@Query("select u from User u where u.name like %?1% order by name")
-	List<User> findByNameContains(String name);
+	@Query("select u from User u where u.username like %?1% order by username")
+	List<User> findByUsernameContains(String name);
 
-	List<User> findByNameOrEmail(String name, String email);
+	List<User> findByUsernameOrEmail(String username, String email);
 
 	// Slice<User> findAll(Pageable pageRequest);
-	Page<User> findByNameContainsOrEmailContainsAllIgnoreCase(String name, String email, Pageable pageRequest);
+	Page<User> findByUsernameContainsOrEmailContainsAllIgnoreCase(String username, String email, Pageable pageRequest);
 
 	// @Query("SELECT t FROM Todo t WHERE " + "LOWER(t.title) LIKE
 	// LOWER(CONCAT('%',:searchTerm, '%')) OR "

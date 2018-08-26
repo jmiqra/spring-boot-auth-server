@@ -59,15 +59,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public List<User> getByNameContains(String name) {
-		return userRepository.findByNameContains(name);
+		return userRepository.findByUsernameContains(name);
 	}
 
 	public List<User> getBySearchCrud(UserSearch searchItem) {
-		return userRepository.findByNameOrEmail(searchItem.getName(), searchItem.getEmail());
+		return userRepository.findByUsernameOrEmail(searchItem.getName(), searchItem.getEmail());
 	}
 
 	public Page<User> getBySearchCrudPageable(UserSearch searchItem, Pageable pageable) {
-		return userRepository.findByNameContainsOrEmailContainsAllIgnoreCase(searchItem.getName(),
+		return userRepository.findByUsernameContainsOrEmailContainsAllIgnoreCase(searchItem.getName(),
 				searchItem.getEmail(), pageable);
 	}
 
