@@ -3,12 +3,12 @@ package com.asraf;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.asraf.configs.SpringConfig;
+import com.asraf.repositories.persistence.ExtendedQueryDslJpaRepositoryImpl;
 
 @SpringBootApplication
-@ComponentScan(basePackageClasses = SpringConfig.class)
+@EnableJpaRepositories(repositoryBaseClass = ExtendedQueryDslJpaRepositoryImpl.class)
 public class SpringBootHibernateAuthApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
