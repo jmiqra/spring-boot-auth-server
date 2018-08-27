@@ -1,5 +1,6 @@
 package com.asraf.controllers;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -45,6 +46,11 @@ public class UserController {
 		return response;
 	}
 
+	@GetMapping("/me")
+    public Principal user(Principal principal) {
+        return principal;
+    }
+	
 	@GetMapping("/get-by-email/{email}")
 	public UserResponseDto getByEmail(@PathVariable String email) {
 		User user = userService.getByEmail(email);
