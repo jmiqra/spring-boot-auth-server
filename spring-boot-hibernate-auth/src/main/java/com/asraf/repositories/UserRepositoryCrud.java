@@ -16,12 +16,13 @@ public interface UserRepositoryCrud extends PagingAndSortingRepository<User, Lon
 
 	public User findByEmail(String email);
 
+	public User findByUsername(String username);
+
 	@Query("select u from User u where u.username like %?1% order by username")
-	List<User> findByUsernameContains(String name);
+	List<User> findByUsernameContains(String username);
 
 	List<User> findByUsernameOrEmail(String username, String email);
 
-	// Slice<User> findAll(Pageable pageRequest);
 	Page<User> findByUsernameContainsOrEmailContainsAllIgnoreCase(String username, String email, Pageable pageRequest);
 
 	// @Query("SELECT t FROM Todo t WHERE " + "LOWER(t.title) LIKE
