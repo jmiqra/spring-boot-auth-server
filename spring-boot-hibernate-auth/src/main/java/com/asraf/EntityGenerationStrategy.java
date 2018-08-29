@@ -1,4 +1,4 @@
-package com.asraf.config;
+package com.asraf;
 
 import java.util.HashMap;
 import java.util.Map;
