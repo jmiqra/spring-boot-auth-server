@@ -1,5 +1,5 @@
 package com.asraf.entities;
-// Generated Aug 20, 2018 4:19:08 PM by Hibernate Tools 5.2.10.Final
+// Generated Aug 29, 2018 6:56:08 PM by Hibernate Tools 5.2.10.Final
 
 import java.util.Date;
 import java.util.HashSet;
@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -35,6 +36,7 @@ public class User extends BaseEntity implements java.io.Serializable {
 	private Date lastWrongPasswordAttempt;
 	private Date creationTime;
 	private Date updateTime;
+	private Set<UserVerification> userVerifications = new HashSet<UserVerification>(0);
 	private Set<Role> roles = new HashSet<Role>(0);
 
 	public User() {
@@ -51,7 +53,7 @@ public class User extends BaseEntity implements java.io.Serializable {
 
 	public User(String username, String email, String password, String userStatus, Date lastLogin,
 			Integer wrongPasswordAttempt, Date lastWrongPasswordAttempt, Date creationTime, Date updateTime,
-			Set<Role> roles) {
+			Set<UserVerification> userVerifications, Set<Role> roles) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
@@ -61,6 +63,7 @@ public class User extends BaseEntity implements java.io.Serializable {
 		this.lastWrongPasswordAttempt = lastWrongPasswordAttempt;
 		this.creationTime = creationTime;
 		this.updateTime = updateTime;
+		this.userVerifications = userVerifications;
 		this.roles = roles;
 	}
 
@@ -159,6 +162,15 @@ public class User extends BaseEntity implements java.io.Serializable {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	public Set<UserVerification> getUserVerifications() {
+		return this.userVerifications;
+	}
+
+	public void setUserVerifications(Set<UserVerification> userVerifications) {
+		this.userVerifications = userVerifications;
 	}
 
 	@ManyToMany(fetch = FetchType.LAZY)
