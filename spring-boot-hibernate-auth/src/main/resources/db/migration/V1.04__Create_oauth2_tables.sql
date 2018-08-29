@@ -1,5 +1,5 @@
-drop table if exists oauth_client_details;
-create table oauth_client_details (
+
+create table if not exists oauth_client_details (
   client_id VARCHAR(255) PRIMARY KEY,
   resource_ids VARCHAR(255),
   client_secret VARCHAR(255),
@@ -48,18 +48,4 @@ create table if not exists oauth_approvals (
 	status VARCHAR(10),
 	expiresAt TIMESTAMP,
 	lastModifiedAt TIMESTAMP
-);
-
-create table if not exists ClientDetails (
-  appId VARCHAR(255) PRIMARY KEY,
-  resourceIds VARCHAR(255),
-  appSecret VARCHAR(255),
-  scope VARCHAR(255),
-  grantTypes VARCHAR(255),
-  redirectUrl VARCHAR(255),
-  authorities VARCHAR(255),
-  access_token_validity INTEGER,
-  refresh_token_validity INTEGER,
-  additionalInformation VARCHAR(4096),
-  autoApproveScopes VARCHAR(255)
 );
