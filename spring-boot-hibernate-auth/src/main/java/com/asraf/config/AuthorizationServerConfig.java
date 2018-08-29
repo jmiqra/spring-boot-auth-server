@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -31,8 +30,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private DataSource dataSource;
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private UserDetailsService userDetailsService;
     @Autowired
     private PasswordEncoder oauthClientPasswordEncoder;
 
@@ -60,7 +57,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-    	endpoints.tokenStore(tokenStore()).authenticationManager(authenticationManager).userDetailsService(userDetailsService);
+    	endpoints.tokenStore(tokenStore()).authenticationManager(authenticationManager);
     }
     
 }
