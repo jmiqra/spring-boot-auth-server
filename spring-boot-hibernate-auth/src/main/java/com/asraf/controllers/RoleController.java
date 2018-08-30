@@ -81,9 +81,10 @@ public class RoleController {
 	@PutMapping("/{id}")
 	public RoleResponseDto update(@PathVariable long id, @Valid @RequestBody RoleRequestDto requestDto) {
 		Role role = roleService.getById(id);
+		role.setUsers(null);
 		roleMappper.loadEntity(requestDto, role);
 		roleService.save(role);
 		return roleMappper.getResponseDto(role);
 	}
-
+	
 }
