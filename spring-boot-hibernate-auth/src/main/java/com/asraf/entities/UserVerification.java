@@ -1,10 +1,12 @@
 package com.asraf.entities;
-// Generated Aug 29, 2018 6:56:08 PM by Hibernate Tools 5.2.10.Final
+// Generated Sep 3, 2018 1:22:50 PM by Hibernate Tools 5.2.10.Final
 
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -19,7 +21,7 @@ import javax.persistence.TemporalType;
 @Table(name = "user_verification", catalog = "myauthdb")
 public class UserVerification extends BaseEntity implements java.io.Serializable {
 
-	private long id;
+	private Long id;
 	private User user;
 	private String verificationCode;
 	private Date creationTime;
@@ -27,21 +29,21 @@ public class UserVerification extends BaseEntity implements java.io.Serializable
 	public UserVerification() {
 	}
 
-	public UserVerification(long id, User user, String verificationCode, Date creationTime) {
-		this.id = id;
+	public UserVerification(User user, String verificationCode, Date creationTime) {
 		this.user = user;
 		this.verificationCode = verificationCode;
 		this.creationTime = creationTime;
 	}
 
 	@Id
+	@GeneratedValue(strategy = IDENTITY)
 
 	@Column(name = "id", unique = true, nullable = false)
-	public long getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

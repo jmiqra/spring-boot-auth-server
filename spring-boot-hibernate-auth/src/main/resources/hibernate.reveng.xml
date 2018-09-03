@@ -3,4 +3,9 @@
 
 <hibernate-reverse-engineering>
   <table-filter match-catalog="myauthdb" match-name="flyway_schema_history" exclude="true"/>
+  <table-filter match-catalog="myauthdb" match-name="oauth_access_token" exclude="true"/>
+  <table-filter match-catalog="myauthdb" match-name="oauth_approvals" exclude="true"/>
+  <table-filter match-catalog="myauthdb" match-name="oauth_client_token" exclude="true"/>
+  <table-filter match-catalog="myauthdb" match-name="oauth_code" exclude="true"/>
+  <table-filter match-catalog="myauthdb" match-name="oauth_refresh_token" exclude="true"/>
 </hibernate-reverse-engineering>
