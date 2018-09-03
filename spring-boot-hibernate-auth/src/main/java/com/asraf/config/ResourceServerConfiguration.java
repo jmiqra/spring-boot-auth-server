@@ -7,14 +7,14 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 
+import com.asraf.constants.ScopeTypes;
+
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
     private static final String RESOURCE_ID = "resource-server-rest-api";
-    private static final String SECURED_READ_SCOPE = "#oauth2.hasScope('read')";
-    private static final String SECURED_WRITE_SCOPE = "#oauth2.hasScope('write')";
-    private static final String SECURED_PATTERN = "/secured/**";
+    private static final String SECURED_PATTERN = "/**";
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
@@ -25,7 +25,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public void configure(HttpSecurity http) throws Exception {
         http.requestMatchers()
                 .antMatchers(SECURED_PATTERN).and().authorizeRequests()
-                .antMatchers(HttpMethod.POST, SECURED_PATTERN).access(SECURED_WRITE_SCOPE)
-                .anyRequest().access(SECURED_READ_SCOPE);
+                .antMatchers(HttpMethod.POST, SECURED_PATTERN).access(ScopeTypes.WRITE)
+                .antMatchers(HttpMethod.PUT, SECURED_PATTERN).access(ScopeTypes.WRITE)
+                .antMatchers(HttpMethod.DELETE, SECURED_PATTERN).access(ScopeTypes.DELETE)
+                .anyRequest().access(ScopeTypes.READ);
     }
 }
