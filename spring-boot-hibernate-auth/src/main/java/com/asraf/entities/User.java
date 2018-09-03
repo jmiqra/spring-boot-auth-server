@@ -1,5 +1,5 @@
 package com.asraf.entities;
-// Generated Aug 29, 2018 6:56:08 PM by Hibernate Tools 5.2.10.Final
+// Generated Sep 3, 2018 1:22:50 PM by Hibernate Tools 5.2.10.Final
 
 import java.util.Date;
 import java.util.HashSet;
