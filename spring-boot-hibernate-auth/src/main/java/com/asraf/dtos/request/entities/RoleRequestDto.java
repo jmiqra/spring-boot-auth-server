@@ -1,5 +1,7 @@
 package com.asraf.dtos.request.entities;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,5 +19,7 @@ public class RoleRequestDto extends BaseRequestDto {
 	@NotNull
 	@Size(min = 3, max = 45)
 	private String name;
+	
+	private List<Long> userIds;
 	
 }

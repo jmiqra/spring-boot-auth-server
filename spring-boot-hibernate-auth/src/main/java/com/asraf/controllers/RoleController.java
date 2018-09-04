@@ -1,7 +1,9 @@
 package com.asraf.controllers;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -24,19 +26,23 @@ import com.asraf.dtos.mapper.RoleMapper;
 import com.asraf.dtos.request.entities.RoleRequestDto;
 import com.asraf.dtos.response.entities.RoleResponseDto;
 import com.asraf.entities.Role;
+import com.asraf.entities.User;
 import com.asraf.services.RoleService;
+import com.asraf.services.UserService;
 
 @RestController
 @RequestMapping("/roles")
 public class RoleController {
 
 	private RoleService roleService;
+	private UserService userService;
 	private RoleMapper roleMappper;
 
 	@Autowired
-	public RoleController(RoleService roleService, RoleMapper roleMappper) {
+	public RoleController(RoleService roleService, UserService userService, RoleMapper roleMappper) {
 		this.roleMappper = roleMappper;
 		this.roleService = roleService;
+		this.userService = userService;
 	}
 
 	@GetMapping("")
@@ -66,6 +72,18 @@ public class RoleController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public RoleResponseDto create(@Valid @RequestBody RoleRequestDto requestDto) {
 		Role role = roleMappper.getEntity(requestDto);
+		Set<User> users = new HashSet<>();
+		List<Long> idList = requestDto.getUserIds();
+		try {
+			for (int i = 0; i < idList.size(); i++) {
+				long userId = idList.get(i);
+				User user = userService.getById(userId);
+				users.add(user);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		role.setUsers(users);
 		roleService.save(role);
 		return roleMappper.getResponseDto(role);
 	}
@@ -79,12 +97,24 @@ public class RoleController {
 	}
 
 	@PutMapping("/{id}")
+	@ResponseStatus(HttpStatus.CREATED)
 	public RoleResponseDto update(@PathVariable long id, @Valid @RequestBody RoleRequestDto requestDto) {
 		Role role = roleService.getById(id);
-		role.setUsers(null);
 		roleMappper.loadEntity(requestDto, role);
+		Set<User> users = role.getUsers();
+		List<Long> idList = requestDto.getUserIds();
+		try {
+			for (int i = 0; i < idList.size(); i++) {
+				long userId = idList.get(i);
+				User user = userService.getById(userId);
+				users.add(user);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		role.setUsers(users);
 		roleService.save(role);
 		return roleMappper.getResponseDto(role);
 	}
-	
+
 }
