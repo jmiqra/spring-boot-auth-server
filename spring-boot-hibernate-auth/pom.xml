@@ -146,6 +146,12 @@
 			<artifactId>squiggly-filter-jackson</artifactId>
 			<version>1.3.11</version>
 		</dependency>
+		
+		<!-- For Mail -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 
 	</dependencies>
 

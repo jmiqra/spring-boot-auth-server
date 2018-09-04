@@ -57,6 +57,13 @@ public class UserServiceImpl implements UserService {
 		ExceptionPreconditions.checkFound(user, User.class, "email", email.toString());
 		return user;
 	}
+	
+	public User getByUsername(String username) {
+		User user = userRepository.findByUsername(username);
+		ExceptionPreconditions.checkFound(user, User.class, "username", username.toString());
+		return user;
+	}
+
 
 	public List<User> getByNameContains(String name) {
 		return userRepository.findByUsernameContains(name);

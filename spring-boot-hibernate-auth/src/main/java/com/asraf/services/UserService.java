@@ -19,6 +19,8 @@ public interface UserService {
 	Iterable<User> getAll();
 
 	User getByEmail(String email);
+	
+	User getByUsername(String username);
 
 	List<User> getByNameContains(String name);
 
