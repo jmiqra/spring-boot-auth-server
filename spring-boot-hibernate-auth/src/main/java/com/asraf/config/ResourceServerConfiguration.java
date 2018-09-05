@@ -36,4 +36,34 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .anyRequest().access(ScopeTypes.READ);
     }
        
+    
+    /* For resource server configuration without auth server */
+//    @Autowired
+//    private Environment env;
+//    
+//    @Bean
+//    @Primary
+//    public DefaultTokenServices tokenServices() {
+//        final DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+//        defaultTokenServices.setTokenStore(tokenStore());
+//        return defaultTokenServices;
+//    }
+//
+//    /* JDBC token store configuration */
+//
+//    @Bean
+//    public DataSource dataSource() {
+//        final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+//        dataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
+//        dataSource.setUrl(env.getProperty("jdbc.url"));
+//        dataSource.setUsername(env.getProperty("jdbc.user"));
+//        dataSource.setPassword(env.getProperty("jdbc.pass"));
+//        return dataSource;
+//    }
+//
+//    @Bean
+//    public TokenStore tokenStore() {
+//        return new JdbcTokenStore(dataSource());
+//    }
+    
 }

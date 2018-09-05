@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -41,6 +42,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private AuthenticationManager authenticationManager;
     @Autowired
     private PasswordEncoder oauthClientPasswordEncoder;
+    @Autowired
+    private UserDetailsService userDetailsServiceImpl;
 
     @Bean
     public TokenStore tokenStore() {
@@ -95,6 +98,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      
         endpoints.tokenStore(tokenStore())
                  .tokenEnhancer(tokenEnhancerChain)
+                 .userDetailsService(userDetailsServiceImpl)
                  .authenticationManager(authenticationManager);
     }
     
