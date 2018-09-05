@@ -26,9 +26,11 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
+import com.asraf.constants.ConfigExecutionOrder;
+
 @Configuration
 @EnableAuthorizationServer
-@Order(2)
+@Order(ConfigExecutionOrder.AUTHORIZATION_SERVER_CONFIG)
 @Import(WebSecurityConfig.class)
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
      
