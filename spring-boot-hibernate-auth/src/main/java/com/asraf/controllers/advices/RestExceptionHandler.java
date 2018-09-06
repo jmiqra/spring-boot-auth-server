@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.asraf.dtos.mapper.errors.ApiErrorMapper;
 import com.asraf.dtos.response.errors.ApiErrorResponseDto;
+import com.asraf.exceptions.DuplicateResourceFoundException;
 import com.asraf.exceptions.ResourceNotFoundException;
 import com.asraf.utils.EnumUtils;
 
@@ -104,6 +105,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(ResourceNotFoundException.class)
 	protected ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
+		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)
+				.setMessage(ex.getMessage()).build();
+		return buildResponseEntity(apiError);
+	}
+	
+	@ExceptionHandler(DuplicateResourceFoundException.class)
+	protected ResponseEntity<Object> handleDuplicateResourceFoundException(DuplicateResourceFoundException ex) {
 		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)
 				.setMessage(ex.getMessage()).build();
 		return buildResponseEntity(apiError);

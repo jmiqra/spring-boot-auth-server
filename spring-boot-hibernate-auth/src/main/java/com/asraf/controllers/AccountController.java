@@ -26,6 +26,8 @@ import com.asraf.dtos.request.entities.UserRequestDto;
 import com.asraf.dtos.response.entities.UserResponseDto;
 import com.asraf.entities.Role;
 import com.asraf.entities.User;
+import com.asraf.exceptions.DuplicateResourceFoundException;
+import com.asraf.exceptions.ResourceNotFoundException;
 import com.asraf.services.RoleService;
 import com.asraf.services.UserService;
 
@@ -57,20 +59,23 @@ public class AccountController {
 
 	@PostMapping("")
 	@ResponseStatus(HttpStatus.CREATED)
-	public String create(@Valid @RequestBody UserRequestDto requestDto) {
+	public String create(@Valid @RequestBody UserRequestDto requestDto) throws Exception {
 		User user = userMappper.getEntity(requestDto);
-		//do
-		User userTemp = userService.getByUsername(requestDto.getUsername());
-		if(userTemp == null)
-		{
-			System.out.println("User name doesn't exist");
+
+		try {
+			User userTemp = userService.getByUsername(requestDto.getUsername());
+			throw new DuplicateResourceFoundException(getClass(), "Duplicate Username");
+		} catch (ResourceNotFoundException e1) {
+
 		}
-		//do
-		User userTemp1 = userService.getByEmail(requestDto.getEmail());
-		if(userTemp1 == null)
-		{
-			System.out.println("User email doesn't exist");
+
+		try {
+			User userTemp1 = userService.getByEmail(requestDto.getEmail());
+			throw new DuplicateResourceFoundException(getClass(), "Duplicate Email");
+		} catch (ResourceNotFoundException e1) {
+
 		}
+
 		user.setPassword(userPasswordEncoder.encode(requestDto.getPassword()));
 		Date date = new Date();
 		user.setCreationTime(date);
@@ -92,9 +97,25 @@ public class AccountController {
 	}
 
 	@PutMapping("/{id}")
-	public String update(@PathVariable long id, @Valid @RequestBody UserDetailsUpdateRequestDto requestDto) {
+	public String update(@PathVariable long id, @Valid @RequestBody UserDetailsUpdateRequestDto requestDto)
+			throws Exception {
 		User user = userService.getById(id);
 		userDetailsUpdateMapper.loadEntity(requestDto, user);
+
+		try {
+			User userTemp = userService.getByUsername(requestDto.getUsername());
+			throw new DuplicateResourceFoundException(getClass(), "Duplicate Username");
+		} catch (ResourceNotFoundException e1) {
+
+		}
+
+		try {
+			User userTemp1 = userService.getByEmail(requestDto.getEmail());
+			throw new DuplicateResourceFoundException(getClass(), "Duplicate Email");
+		} catch (ResourceNotFoundException e1) {
+
+		}
+
 		Date date = new Date();
 		user.setUpdateTime(date);
 		Set<Role> roles = user.getRoles();
@@ -112,7 +133,7 @@ public class AccountController {
 		userService.save(user);
 		return "User Details update Completed";
 	}
-	
+
 	@PutMapping("/{id}/change-password")
 	public String updatePassword(@PathVariable long id, @Valid @RequestBody ChangePasswordRequestDto requestDto) {
 		User user = userService.getById(id);
