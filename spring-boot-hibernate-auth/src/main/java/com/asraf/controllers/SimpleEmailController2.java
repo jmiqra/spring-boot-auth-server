@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
@@ -44,7 +45,7 @@ public class SimpleEmailController2 {
     private void sendEmail() throws Exception {
         MimeMessage message = sender.createMimeMessage();
 
-        MimeMessageHelper helper = new MimeMessageHelper(message);
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
 //        Map<String, Object> model = new HashMap();
 //        model.put("user", "iqrah");
@@ -58,6 +59,7 @@ public class SimpleEmailController2 {
         
         Context context = new Context();
         context.setVariable("message", "Hello World!");
+        context.setVariable("name", "Iqrah");
         
         String text = templateEngine.process("welcome.html", context);
         
@@ -65,6 +67,10 @@ public class SimpleEmailController2 {
         helper.setText(text, true);
         helper.setSubject("Hi");
     
+        ClassPathResource file = new ClassPathResource("image.jpg");
+        helper.addInline("id101", file);
+
+        
         sender.send(message);
     }
 }

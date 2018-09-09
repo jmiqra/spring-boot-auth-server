@@ -1,13 +1,18 @@
 package com.asraf.controllers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.mail.internet.MimeMessage;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import com.asraf.dtos.mapper.UserDetailsUpdateMapper;
 import com.asraf.dtos.mapper.UserMapper;
@@ -132,6 +139,61 @@ public class AccountController {
 		user.setRoles(roles);
 		userService.save(user);
 		return "User Details update Completed";
+	}
+
+	// forget password with email
+	@Autowired
+	private JavaMailSender sender;
+
+	@Autowired
+	private SpringTemplateEngine templateEngine;
+
+	@GetMapping("{name}/forgot-password")
+	public String sendMail(@PathVariable String name) {
+
+		User user = new User();
+
+		try {
+			user = userService.getByUsername(name);
+		} catch (ResourceNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			sendEmail(user);
+			return "Email Sent!";
+		} catch (Exception ex) {
+			return "Error in sending email: " + ex;
+		}
+	}
+
+	private void sendEmail(User user) throws Exception {
+
+		long id = user.getId();
+		String name = user.getUsername();
+		String emailAddress = user.getEmail();
+		String link = "http://localhost:8081/accounts/" + id + "/change-password";
+
+		MimeMessage message = sender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
+
+		Context context = new Context();
+		context.setVariable("message", "Enjoy Thymeleaf");
+		context.setVariable("name", name);
+		context.setVariable("link", link);
+
+		String text = templateEngine.process("welcome.html", context);
+
+		helper.setTo(emailAddress);
+		helper.setText(text, true);
+		helper.setSubject("Change Password");
+
+		ClassPathResource file = new ClassPathResource("logo.png");
+		helper.addInline("id101", file);
+
+		sender.send(message);
 	}
 
 	@PutMapping("/{id}/change-password")
