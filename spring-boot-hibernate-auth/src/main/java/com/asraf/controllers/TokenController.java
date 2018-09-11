@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.asraf.dtos.request.token.AccessTokenRequestDto;
+import com.asraf.dtos.request.token.RefreshTokenRequestDto;
 
 @RestController
 public class TokenController {
@@ -28,11 +29,6 @@ public class TokenController {
 
 	@Resource(name = "tokenStore")
 	TokenStore tokenStore;
-
-	@RequestMapping(method = RequestMethod.DELETE, value = "/oauth/access-token/revoke")
-	public void revokeToken(HttpServletRequest request, @Valid @RequestBody AccessTokenRequestDto requestDto) {
-		tokenServices.revokeToken(requestDto.getAccessToken());
-	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "clients/{clientId}/tokens")
 	public Collection<OAuth2AccessToken> getTokensByClient(@PathVariable String clientId) {
@@ -47,7 +43,8 @@ public class TokenController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "clients/{clientId}/username/{username}/tokens")
-	public Collection<OAuth2AccessToken> getTokensByClientAndUser(@PathVariable String clientId, @PathVariable String username) {
+	public Collection<OAuth2AccessToken> getTokensByClientAndUser(@PathVariable String clientId,
+			@PathVariable String username) {
 		List<String> tokenValues = new ArrayList<String>();
 		Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(clientId, username);
 		if (tokens != null) {
@@ -58,12 +55,16 @@ public class TokenController {
 		return tokens;
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/tokens/revokeRefreshToken/{tokenId:.*}")
-	public String revokeRefreshToken(@PathVariable String tokenId) {
+	@RequestMapping(method = RequestMethod.DELETE, value = "/oauth/access-token/revoke")
+	public void revokeToken(HttpServletRequest request, @Valid @RequestBody AccessTokenRequestDto requestDto) {
+		tokenServices.revokeToken(requestDto.getAccessToken());
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/oauth/refresh-token/revoke")
+	public void revokeRefreshToken(@Valid @RequestBody  RefreshTokenRequestDto requestDto) {
 		if (tokenStore instanceof JdbcTokenStore) {
-			((JdbcTokenStore) tokenStore).removeRefreshToken(tokenId);
+			((JdbcTokenStore) tokenStore).removeRefreshToken(requestDto.getRefreshToken());
 		}
-		return tokenId;
 	}
 
 }
