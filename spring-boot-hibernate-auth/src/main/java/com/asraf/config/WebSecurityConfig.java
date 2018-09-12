@@ -13,9 +13,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.asraf.constants.ConfigExecutionOrder;
+
 @Configuration
 @EnableWebSecurity
-@Order(1)
+@Order(ConfigExecutionOrder.WEB_SECURITY_CONFIG)
 @Import(Encoders.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
  
