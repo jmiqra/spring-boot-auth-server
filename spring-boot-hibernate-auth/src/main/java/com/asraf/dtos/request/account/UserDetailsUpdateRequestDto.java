@@ -1,4 +1,4 @@
-package com.asraf.dtos.request.entities;
+package com.asraf.dtos.request.account;
 
 import java.util.Date;
 import java.util.List;

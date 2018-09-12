@@ -2,6 +2,7 @@ package com.asraf.controllers.advices;
 
 import java.util.NoSuchElementException;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
@@ -103,6 +104,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildResponseEntity(apiError);
 	}
 
+	@ExceptionHandler(MessagingException.class)
+	protected ResponseEntity<Object> handleMessagingException(MessagingException ex) {
+		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+				.setMessage(ex.getMessage()).build();
+		return buildResponseEntity(apiError);
+	}
+	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	protected ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
 		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)

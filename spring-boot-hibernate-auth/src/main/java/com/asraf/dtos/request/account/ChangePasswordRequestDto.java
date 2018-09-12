@@ -1,4 +1,4 @@
-package com.asraf.dtos.request.entities;
+package com.asraf.dtos.request.account;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

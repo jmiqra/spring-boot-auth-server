@@ -8,4 +8,8 @@ import com.asraf.entities.UserVerification;
 @Transactional
 public interface UserVerificationRepositoryCrud extends PagingAndSortingRepository<UserVerification, Long> {
 
+	public UserVerification findByVerificationCode(String verificationCode);
+	
+	public void deleteByUserId(long userId);
+	
 }

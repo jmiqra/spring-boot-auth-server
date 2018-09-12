@@ -10,8 +10,12 @@ public interface UserVerificationService {
 	UserVerification save(UserVerification userVerification);
 
 	void delete(UserVerification userVerification);
+	
+	void deleteByUserId(long userId);
 
 	UserVerification getById(Long id);
+	
+	UserVerification getByVerificationCode(String verificationCode);
 
 	Iterable<UserVerification> getAll();
 

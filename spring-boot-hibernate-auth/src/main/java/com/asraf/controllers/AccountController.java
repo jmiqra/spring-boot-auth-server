@@ -1,18 +1,14 @@
 package com.asraf.controllers;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.mail.internet.MimeMessage;
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,21 +18,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import com.asraf.dtos.mapper.UserDetailsUpdateMapper;
 import com.asraf.dtos.mapper.UserMapper;
-import com.asraf.dtos.request.entities.ChangePasswordRequestDto;
-import com.asraf.dtos.request.entities.UserDetailsUpdateRequestDto;
+import com.asraf.dtos.mapper.account.ForgotPasswordMapper;
+import com.asraf.dtos.mapper.account.UserDetailsUpdateMapper;
+import com.asraf.dtos.request.account.ChangePasswordRequestDto;
+import com.asraf.dtos.request.account.ForgotPasswordRequestDto;
+import com.asraf.dtos.request.account.UserDetailsUpdateRequestDto;
 import com.asraf.dtos.request.entities.UserRequestDto;
 import com.asraf.dtos.response.entities.UserResponseDto;
 import com.asraf.entities.Role;
 import com.asraf.entities.User;
+import com.asraf.entities.UserVerification;
 import com.asraf.exceptions.DuplicateResourceFoundException;
 import com.asraf.exceptions.ResourceNotFoundException;
 import com.asraf.services.RoleService;
 import com.asraf.services.UserService;
+import com.asraf.services.UserVerificationService;
+import com.asraf.services.email.EmailSenderService;
+import com.asraf.services.email.MessageBuilder;
+import com.asraf.templates.ChangePasswordTemplate;
 
 @RestController
 @RequestMapping("/accounts")
@@ -47,15 +48,25 @@ public class AccountController {
 	private RoleService roleService;
 	private PasswordEncoder userPasswordEncoder;
 	private UserDetailsUpdateMapper userDetailsUpdateMapper;
+	private EmailSenderService emailSenderService;
+	private ChangePasswordTemplate changePasswordTemplate;
+	private UserVerificationService userVerificationService;
+	private ForgotPasswordMapper forgotPasswordMapper;
 
 	@Autowired
 	public AccountController(UserService userService, UserMapper userMappper, RoleService roleService,
-			PasswordEncoder userPasswordEncoder, UserDetailsUpdateMapper userDetailsUpdateMapper) {
+			PasswordEncoder userPasswordEncoder, UserDetailsUpdateMapper userDetailsUpdateMapper,
+			EmailSenderService emailSenderService, ChangePasswordTemplate changePasswordTemplate,
+			UserVerificationService userVerificationService, ForgotPasswordMapper forgotPasswordMapper) {
 		this.userMappper = userMappper;
 		this.userService = userService;
 		this.roleService = roleService;
 		this.userPasswordEncoder = userPasswordEncoder;
 		this.userDetailsUpdateMapper = userDetailsUpdateMapper;
+		this.emailSenderService = emailSenderService;
+		this.changePasswordTemplate = changePasswordTemplate;
+		this.userVerificationService = userVerificationService;
+		this.forgotPasswordMapper = forgotPasswordMapper;
 	}
 
 	@GetMapping("")
@@ -66,142 +77,96 @@ public class AccountController {
 
 	@PostMapping("")
 	@ResponseStatus(HttpStatus.CREATED)
-	public String create(@Valid @RequestBody UserRequestDto requestDto) throws Exception {
+	public void createUser(@Valid @RequestBody UserRequestDto requestDto) throws Exception {
 		User user = userMappper.getEntity(requestDto);
-
-		try {
-			User userTemp = userService.getByUsername(requestDto.getUsername());
-			throw new DuplicateResourceFoundException(getClass(), "Duplicate Username");
-		} catch (ResourceNotFoundException e1) {
-
-		}
-
-		try {
-			User userTemp1 = userService.getByEmail(requestDto.getEmail());
-			throw new DuplicateResourceFoundException(getClass(), "Duplicate Email");
-		} catch (ResourceNotFoundException e1) {
-
-		}
-
+		checkDuplicateUsername(requestDto.getUsername());
+		checkDuplicateEmail(requestDto.getEmail());
 		user.setPassword(userPasswordEncoder.encode(requestDto.getPassword()));
-		Date date = new Date();
-		user.setCreationTime(date);
-		user.setUpdateTime(date);
-		Set<Role> roles = user.getRoles();
-		List<Long> idList = requestDto.getRoleIds();
-		try {
-			for (int i = 0; i < idList.size(); i++) {
-				long roleId = idList.get(i);
-				Role role = roleService.getById(roleId);
-				roles.add(role);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		user.setCreationTime(new Date());
+		user.setUpdateTime(new Date());
+		List<Long> roleIdList = requestDto.getRoleIds();
+		Set<Role> roles = addRoles(user, roleIdList);
 		user.setRoles(roles);
 		userService.save(user);
-		return "User Sign Up Completed";
+		return;
 	}
 
 	@PutMapping("/{id}")
-	public String update(@PathVariable long id, @Valid @RequestBody UserDetailsUpdateRequestDto requestDto)
+	public void updateUser(@PathVariable long id, @Valid @RequestBody UserDetailsUpdateRequestDto requestDto)
 			throws Exception {
 		User user = userService.getById(id);
+		user.getRoles().size();
+		if (!user.getUsername().equals(requestDto.getUsername())) {
+			checkDuplicateUsername(requestDto.getUsername());
+		}
+		if (!user.getEmail().equals(requestDto.getEmail())) {
+			checkDuplicateEmail(requestDto.getEmail());
+		}
 		userDetailsUpdateMapper.loadEntity(requestDto, user);
+		user.setUpdateTime(new Date());
+		List<Long> roleIdList = requestDto.getRoleIds();
+		Set<Role> roles = addRoles(user, roleIdList);
+		user.setRoles(roles);
+		userService.save(user);
+		return;
+	}
 
+	@PostMapping("/forgot-password")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto) throws MessagingException {
+		User user = userService.getByUsername(requestDto.getUsername());
+		UserVerification userVerification = forgotPasswordMapper.getEntity(user);
+		userVerificationService.save(userVerification);
+		String link = "http://localhost:8081/accounts/change-password/" + userVerification.getVerificationCode();
+		sendEmail(user, link);
+		return;
+	}
+
+	@PutMapping("/change-password/{verificationCode}")
+	public void updatePassword(@PathVariable String verificationCode,
+			@Valid @RequestBody ChangePasswordRequestDto requestDto) {
+		UserVerification userVerification = userVerificationService.getByVerificationCode(verificationCode);
+		User user = userService.getById(userVerification.getUser().getId());
+		user.setPassword(userPasswordEncoder.encode(requestDto.getPassword()));
+		userService.save(user);
+		userVerificationService.deleteByUserId(user.getId());
+		return;
+	}
+
+	private void sendEmail(User user, String link) throws MessagingException {
+		MessageBuilder messageBuilder = MessageBuilder.builder().emailTo(user.getEmail())
+				.emailBody(changePasswordTemplate.createTemplate(user, link)).emailSubject("Change Password").build();
+		emailSenderService.sendHtml(messageBuilder);
+	}
+
+	private void checkDuplicateUsername(String userName) {
 		try {
-			User userTemp = userService.getByUsername(requestDto.getUsername());
-			throw new DuplicateResourceFoundException(getClass(), "Duplicate Username");
+			userService.getByUsername(userName);
+			throw new DuplicateResourceFoundException(getClass(), "Duplicate Username ", userName);
 		} catch (ResourceNotFoundException e1) {
-
 		}
+	}
 
+	private void checkDuplicateEmail(String email) {
 		try {
-			User userTemp1 = userService.getByEmail(requestDto.getEmail());
-			throw new DuplicateResourceFoundException(getClass(), "Duplicate Email");
+			userService.getByEmail(email);
+			throw new DuplicateResourceFoundException(getClass(), "Duplicate Email", email);
 		} catch (ResourceNotFoundException e1) {
-
 		}
+	}
 
-		Date date = new Date();
-		user.setUpdateTime(date);
+	private Set<Role> addRoles(User user, List<Long> roleIdList) {
 		Set<Role> roles = user.getRoles();
-		List<Long> idList = requestDto.getRoleIds();
 		try {
-			for (int i = 0; i < idList.size(); i++) {
-				long roleId = idList.get(i);
+			for (int i = 0; i < roleIdList.size(); i++) {
+				long roleId = roleIdList.get(i);
 				Role role = roleService.getById(roleId);
 				roles.add(role);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		user.setRoles(roles);
-		userService.save(user);
-		return "User Details update Completed";
-	}
-
-	// forget password with email
-	@Autowired
-	private JavaMailSender sender;
-
-	@Autowired
-	private SpringTemplateEngine templateEngine;
-
-	@GetMapping("{name}/forgot-password")
-	public String sendMail(@PathVariable String name) {
-
-		User user = new User();
-
-		try {
-			user = userService.getByUsername(name);
-		} catch (ResourceNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			sendEmail(user);
-			return "Email Sent!";
-		} catch (Exception ex) {
-			return "Error in sending email: " + ex;
-		}
-	}
-
-	private void sendEmail(User user) throws Exception {
-
-		long id = user.getId();
-		String name = user.getUsername();
-		String emailAddress = user.getEmail();
-		String link = "http://localhost:8081/accounts/" + id + "/change-password";
-
-		MimeMessage message = sender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message,
-                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-                StandardCharsets.UTF_8.name());
-
-		Context context = new Context();
-		context.setVariable("message", "Enjoy Thymeleaf");
-		context.setVariable("name", name);
-		context.setVariable("link", link);
-
-		String text = templateEngine.process("welcome.html", context);
-
-		helper.setTo(emailAddress);
-		helper.setText(text, true);
-		helper.setSubject("Change Password");
-
-		ClassPathResource file = new ClassPathResource("logo.png");
-		helper.addInline("id101", file);
-
-		sender.send(message);
-	}
-
-	@PutMapping("/{id}/change-password")
-	public String updatePassword(@PathVariable long id, @Valid @RequestBody ChangePasswordRequestDto requestDto) {
-		User user = userService.getById(id);
-		user.setPassword(userPasswordEncoder.encode(requestDto.getPassword()));
-		userService.save(user);
-		return "User Password Change Completed";
+		return roles;
 	}
 
 }

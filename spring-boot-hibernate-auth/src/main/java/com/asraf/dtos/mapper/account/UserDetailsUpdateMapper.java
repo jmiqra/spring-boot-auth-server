@@ -1,6 +1,7 @@
-package com.asraf.dtos.mapper;
+package com.asraf.dtos.mapper.account;
 
-import com.asraf.dtos.request.entities.UserDetailsUpdateRequestDto;
+import com.asraf.dtos.mapper.RequestResponseDtoMapper;
+import com.asraf.dtos.request.account.UserDetailsUpdateRequestDto;
 import com.asraf.dtos.response.entities.UserResponseDto;
 import com.asraf.entities.User;
 
