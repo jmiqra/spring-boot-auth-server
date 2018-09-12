@@ -2,6 +2,7 @@ package com.asraf.controllers.advices;
 
 import java.util.NoSuchElementException;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.asraf.dtos.mapper.errors.ApiErrorMapper;
 import com.asraf.dtos.response.errors.ApiErrorResponseDto;
+import com.asraf.exceptions.DuplicateResourceFoundException;
 import com.asraf.exceptions.ResourceNotFoundException;
 import com.asraf.utils.EnumUtils;
 
@@ -102,8 +104,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildResponseEntity(apiError);
 	}
 
+	@ExceptionHandler(MessagingException.class)
+	protected ResponseEntity<Object> handleMessagingException(MessagingException ex) {
+		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+				.setMessage(ex.getMessage()).build();
+		return buildResponseEntity(apiError);
+	}
+	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	protected ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
+		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)
+				.setMessage(ex.getMessage()).build();
+		return buildResponseEntity(apiError);
+	}
+	
+	@ExceptionHandler(DuplicateResourceFoundException.class)
+	protected ResponseEntity<Object> handleDuplicateResourceFoundException(DuplicateResourceFoundException ex) {
 		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)
 				.setMessage(ex.getMessage()).build();
 		return buildResponseEntity(apiError);

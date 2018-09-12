@@ -38,11 +38,24 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 		userVerificationRepository.delete(userVerification);
 	}
 
+	public void deleteByUserId(long userId) {
+		userVerificationRepository.deleteByUserId(userId);
+	}
+
 	public UserVerification getById(Long id) {
 		try {
 			return userVerificationRepository.findById(id).get();
 		} catch (NoSuchElementException nseex) {
 			return ExceptionPreconditions.entityNotFound(UserVerification.class, "id", id.toString());
+		}
+	}
+
+	public UserVerification getByVerificationCode(String verificationCode) {
+		try {
+			return userVerificationRepository.findByVerificationCode(verificationCode);
+		} catch (NoSuchElementException nseex) {
+			return ExceptionPreconditions.entityNotFound(UserVerification.class, "verificationCode",
+					verificationCode.toString());
 		}
 	}
 

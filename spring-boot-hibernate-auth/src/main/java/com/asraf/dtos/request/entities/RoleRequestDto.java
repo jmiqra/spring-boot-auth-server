@@ -1,6 +1,9 @@
 package com.asraf.dtos.request.entities;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.asraf.dtos.request.BaseRequestDto;
 
@@ -11,12 +14,12 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class UserProfileRequestDto extends BaseRequestDto {
+public class RoleRequestDto extends BaseRequestDto {
 
 	@NotNull
-	private String address;
-
-	@NotNull
-	private String phoneNumber;
-
+	@Size(min = 3, max = 45)
+	private String name;
+	
+	private List<Long> userIds;
+	
 }

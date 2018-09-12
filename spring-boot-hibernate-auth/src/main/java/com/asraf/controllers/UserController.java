@@ -2,6 +2,7 @@ package com.asraf.controllers;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.asraf.dtos.mapper.UserMapper;
 import com.asraf.dtos.request.entities.UserRequestDto;
 import com.asraf.dtos.response.entities.UserResponseDto;
+import com.asraf.entities.Role;
 import com.asraf.entities.User;
 import com.asraf.models.search.UserSearch;
+import com.asraf.services.RoleService;
 import com.asraf.services.UserService;
 
 @RestController
@@ -33,11 +36,13 @@ public class UserController {
 
 	private UserService userService;
 	private UserMapper userMappper;
+	private RoleService roleService;
 
 	@Autowired
-	public UserController(UserService userService, UserMapper userMappper) {
+	public UserController(UserService userService, UserMapper userMappper, RoleService roleService) {
 		this.userMappper = userMappper;
 		this.userService = userService;
+		this.roleService = roleService;
 	}
 
 	@GetMapping("")
@@ -47,10 +52,10 @@ public class UserController {
 	}
 
 	@GetMapping("/me")
-    public Principal user(Principal principal) {
-        return principal;
-    }
-	
+	public Principal user(Principal principal) {
+		return principal;
+	}
+
 	@GetMapping("/get-by-email/{email}")
 	public UserResponseDto getByEmail(@PathVariable String email) {
 		User user = userService.getByEmail(email);
@@ -97,6 +102,18 @@ public class UserController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public UserResponseDto create(@Valid @RequestBody UserRequestDto requestDto) {
 		User user = userMappper.getEntity(requestDto);
+		Set<Role> roles = user.getRoles();
+		List<Long> idList = requestDto.getRoleIds();
+		try {
+			for (int i = 0; i < idList.size(); i++) {
+				long roleId = idList.get(i);
+				Role role = roleService.getById(roleId);
+				roles.add(role);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		user.setRoles(roles);
 		userService.save(user);
 		return userMappper.getResponseDto(user);
 	}
@@ -113,6 +130,18 @@ public class UserController {
 	public UserResponseDto update(@PathVariable long id, @Valid @RequestBody UserRequestDto requestDto) {
 		User user = userService.getById(id);
 		userMappper.loadEntity(requestDto, user);
+		Set<Role> roles = user.getRoles();
+		List<Long> idList = requestDto.getRoleIds();
+		try {
+			for (int i = 0; i < idList.size(); i++) {
+				long roleId = idList.get(i);
+				Role role = roleService.getById(roleId);
+				roles.add(role);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		user.setRoles(roles);
 		userService.save(user);
 		return userMappper.getResponseDto(user);
 	}
