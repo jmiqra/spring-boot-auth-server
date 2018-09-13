@@ -1,5 +1,6 @@
 package com.asraf.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.asraf.constants.RolePreAuthorizeConditions;
 import com.asraf.resources.main.MainResource;
 
 @RestController
@@ -34,6 +36,7 @@ public class MainController {
 		return "update";
 	}
 
+	@PreAuthorize(RolePreAuthorizeConditions.ADMIN)
 	@DeleteMapping("/{id}")
 	public String delete(@PathVariable("id") String id) {
 		return "delete -> " + id;

@@ -1,8 +1,7 @@
 package com.asraf.dtos.request.entities;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 import com.asraf.dtos.request.BaseRequestDto;
 
