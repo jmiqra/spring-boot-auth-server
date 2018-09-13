@@ -70,7 +70,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 			e.printStackTrace();
 		}
 		
-		ClassPathResource file = new ClassPathResource("logo.png");
+		ClassPathResource file = new ClassPathResource("images/logo.png");
 		helper.addInline("id101", file);
 
 		sender.send(message);
