@@ -142,7 +142,7 @@ public class AccountController {
 	private void checkDuplicateUsername(String userName) {
 		try {
 			userService.getByUsername(userName);
-			throw new DuplicateResourceFoundException(getClass(), "Duplicate Username ", userName);
+			throw new DuplicateResourceFoundException(User.class, "username", userName);
 		} catch (ResourceNotFoundException e1) {
 		}
 	}
@@ -150,7 +150,7 @@ public class AccountController {
 	private void checkDuplicateEmail(String email) {
 		try {
 			userService.getByEmail(email);
-			throw new DuplicateResourceFoundException(getClass(), "Duplicate Email", email);
+			throw new DuplicateResourceFoundException(User.class, "email", email);
 		} catch (ResourceNotFoundException e1) {
 		}
 	}

@@ -51,12 +51,10 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 	}
 
 	public UserVerification getByVerificationCode(String verificationCode) {
-		try {
-			return userVerificationRepository.findByVerificationCode(verificationCode);
-		} catch (NoSuchElementException nseex) {
-			return ExceptionPreconditions.entityNotFound(UserVerification.class, "verificationCode",
-					verificationCode.toString());
-		}
+		UserVerification userVerification = userVerificationRepository.findByVerificationCode(verificationCode);
+		ExceptionPreconditions.checkFound(userVerification, UserVerification.class, "verificationCode",
+				verificationCode.toString());
+		return userVerification;
 	}
 
 	public Iterable<UserVerification> getAll() {
