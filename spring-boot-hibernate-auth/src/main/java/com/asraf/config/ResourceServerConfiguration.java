@@ -35,7 +35,20 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers(HttpMethod.DELETE, SECURED_PATTERN).access(ScopeTypes.DELETE)
                 .anyRequest().access(ScopeTypes.READ);
     }
-       
+    
+    /* For resource server configuration with auth server */
+//    @Autowired
+//	private Environment env;
+//	
+//    @Primary
+//	@Bean
+//	public RemoteTokenServices tokenServices() {
+//		final RemoteTokenServices tokenService = new RemoteTokenServices();
+//		tokenService.setCheckTokenEndpointUrl(env.getProperty("auth.endpoint.check-token"));
+//		tokenService.setClientId(env.getProperty("auth.client-id"));
+//		tokenService.setClientSecret(env.getProperty("auth.client-secret"));
+//		return tokenService;
+//	}
     
     /* For resource server configuration without auth server */
 //    @Autowired
