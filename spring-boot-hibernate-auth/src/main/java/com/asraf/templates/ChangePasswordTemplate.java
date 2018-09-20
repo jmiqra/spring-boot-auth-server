@@ -1,5 +1,7 @@
 package com.asraf.templates;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
@@ -17,7 +19,7 @@ public class ChangePasswordTemplate {
 		this.templateEngine = templateEngine;
 	}
 
-	public String createTemplate(User user, String link) {
+	public String createTemplate(User user, String link) throws MessagingException {
 
 		String name = user.getUsername();
 		Context context = new Context();
