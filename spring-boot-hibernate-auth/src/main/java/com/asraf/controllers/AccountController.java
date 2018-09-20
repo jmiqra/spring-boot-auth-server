@@ -1,10 +1,12 @@
 package com.asraf.controllers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,13 +115,13 @@ public class AccountController {
 
 	@PostMapping("/forgot-password")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto) throws MessagingException {
+	public void forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto)
+			throws MessagingException, UnsupportedEncodingException {
 		User user = userService.getByUsername(requestDto.getUsername());
 		UserVerification userVerification = forgotPasswordMapper.getEntity(user);
 		userVerificationService.save(userVerification);
 		String link = "http://localhost:8081/accounts/change-password/" + userVerification.getVerificationCode();
 		sendEmail(user, link);
-		return;
 	}
 
 	@PutMapping("/change-password/{verificationCode}")
@@ -133,10 +135,12 @@ public class AccountController {
 		return;
 	}
 
-	private void sendEmail(User user, String link) throws MessagingException {
-		MessageBuilder messageBuilder = MessageBuilder.builder().emailTo(user.getEmail())
-				.emailBody(changePasswordTemplate.createTemplate(user, link)).emailSubject("Change Password").build();
-		emailSenderService.sendHtml(messageBuilder);
+	private void sendEmail(User user, String link) throws MessagingException, UnsupportedEncodingException {
+		InternetAddress replyTo = new InternetAddress("noreply@auth.com", "no-reply");
+		MessageBuilder messageBuilder = MessageBuilder.builder().emailReplyTo(replyTo).emailFrom(null).isHtml(true)
+				.emailBody(changePasswordTemplate.createTemplate(user, link, emailSenderService))
+				.emailSubject("Change Password").build().addEmailTo(user.getEmail(), user.getUsername());
+		emailSenderService.buildEmailSender(messageBuilder).send();
 	}
 
 	private void checkDuplicateUsername(String userName) {

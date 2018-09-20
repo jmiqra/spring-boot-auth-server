@@ -1,16 +1,13 @@
 package com.asraf.services.email.persistence;
 
-import java.io.UnsupportedEncodingException;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -23,57 +20,48 @@ import com.asraf.services.email.MessageBuilder;
 @Transactional
 public class EmailSenderServiceImpl implements EmailSenderService {
 
-	
 	private JavaMailSender sender;
-	
+	private MimeMessage mimeMessage;
+	private MimeMessageHelper mimeMessageHelper;
+
 	@Autowired
-	public EmailSenderServiceImpl(JavaMailSender sender) {
+	public EmailSenderServiceImpl(JavaMailSender sender) throws MessagingException {
 		this.sender = sender;
-	}
 
-	public void sendText(MessageBuilder messageBuilder) throws MessagingException {
-		
-		MimeMessage message = sender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+		mimeMessage = sender.createMimeMessage();
+		mimeMessageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
 				StandardCharsets.UTF_8.name());
 
-		helper.setTo(messageBuilder.getEmailTo());
-		helper.setText(messageBuilder.getEmailBody(), false);
-		helper.setSubject(messageBuilder.getEmailSubject());
-
-		sender.send(message);
 	}
 
-	public void sendHtml(MessageBuilder messageBuilder) throws MessagingException {
-		
-		MimeMessage message = sender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-				StandardCharsets.UTF_8.name());
-
-		try {
-			List<InternetAddress> tos = new ArrayList<InternetAddress>();
-			InternetAddress to = new InternetAddress(messageBuilder.getEmailTo(), "Iqra");
-			tos.add(to);
-			helper.setTo(tos.toArray(new InternetAddress[tos.size()]));
-			
-			InternetAddress from = new InternetAddress("iqrah@dginnovationlab.com", "Jurdana");
-			helper.setFrom(from);
-			
-			InternetAddress replyTo = new InternetAddress("ratul840@yahoo.com", "Asraf");
-			helper.setReplyTo(replyTo);
-			
-			helper.setText(messageBuilder.getEmailBody(), true);
-			helper.setSubject(messageBuilder.getEmailSubject());
-			
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public EmailSenderService buildEmailSender(MessageBuilder messageBuilder) throws MessagingException {
+		mimeMessageHelper.setTo(messageBuilder.getEmailTos());
+		mimeMessageHelper.setReplyTo(messageBuilder.getEmailReplyTo());
+		mimeMessageHelper.setText(messageBuilder.getEmailBody(), messageBuilder.isHtml());
+		mimeMessageHelper.setSubject(messageBuilder.getEmailSubject());
+		if (messageBuilder.getEmailFrom() != null) {
+			mimeMessageHelper.setFrom(messageBuilder.getEmailFrom());
 		}
-		
-		ClassPathResource file = new ClassPathResource("images/logo.png");
-		helper.addInline("id101", file);
+		return this;
+	}
 
-		sender.send(message);
+	public EmailSenderService addInline(String contentId, File file) throws MessagingException {
+		mimeMessageHelper.addInline(contentId, file);
+		return this;
+	}
+
+	public EmailSenderService addInline(String contentId, Resource resource) throws MessagingException {
+		mimeMessageHelper.addInline(contentId, resource);
+		return this;
+	}
+
+	public EmailSenderService addAttachment(String attachmentFilename, File file) throws MessagingException {
+		mimeMessageHelper.addAttachment(attachmentFilename, file);
+		return this;
+	}
+
+	public void send() {
+		sender.send(mimeMessage);
 	}
 
 }
