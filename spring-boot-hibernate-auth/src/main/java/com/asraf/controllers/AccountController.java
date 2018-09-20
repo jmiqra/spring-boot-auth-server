@@ -10,6 +10,7 @@ import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -138,9 +139,10 @@ public class AccountController {
 	private void sendEmail(User user, String link) throws MessagingException, UnsupportedEncodingException {
 		InternetAddress replyTo = new InternetAddress("noreply@auth.com", "no-reply");
 		MessageBuilder messageBuilder = MessageBuilder.builder().emailReplyTo(replyTo).emailFrom(null).isHtml(true)
-				.emailBody(changePasswordTemplate.createTemplate(user, link, emailSenderService))
+				.emailBody(changePasswordTemplate.createTemplate(user, link))
 				.emailSubject("Change Password").build().addEmailTo(user.getEmail(), user.getUsername());
-		emailSenderService.buildEmailSender(messageBuilder).send();
+		ClassPathResource cpResource = new ClassPathResource("images/logo.png");
+		emailSenderService.buildEmailSender(messageBuilder).addInline("id101", cpResource).send();
 	}
 
 	private void checkDuplicateUsername(String userName) {

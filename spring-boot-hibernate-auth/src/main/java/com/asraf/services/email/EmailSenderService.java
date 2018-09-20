@@ -4,7 +4,7 @@ import java.io.File;
 
 import javax.mail.MessagingException;
 
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
 
 public interface EmailSenderService {
 
@@ -12,7 +12,7 @@ public interface EmailSenderService {
 
 	EmailSenderService addInline(String contentId, File file) throws MessagingException;
 
-	EmailSenderService addInline(String contentId, Resource resource) throws MessagingException;
+	EmailSenderService addInline(String contentId, ClassPathResource resource) throws MessagingException;
 	
 	EmailSenderService addAttachment(String attachmentFilename, File file) throws MessagingException;
 
