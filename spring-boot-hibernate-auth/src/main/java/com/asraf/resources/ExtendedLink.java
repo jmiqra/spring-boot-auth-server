@@ -21,10 +21,18 @@ public class ExtendedLink extends Link {
 	private HttpMethod method;
 
 	@Getter
+	private String format;
+
+	@Getter
+	private String fields;
+
+	@Getter
 	private Search search;
 
 	public ExtendedLink(Link link) {
 		super(link.getHref(), link.getRel());
+		this.initFormat();
+		this.initFields();
 	}
 
 	public ExtendedLink withMethod(HttpMethod method) {
@@ -33,13 +41,27 @@ public class ExtendedLink extends Link {
 	}
 
 	public ExtendedLink withSearchableData() {
+		this.initFieldsForSearch();
 		this.search = new Search().initParam().initSort().initPagination().initOperators().initFullExample();
 		return this;
 	}
 
 	public ExtendedLink withPageableData() {
+		this.initFieldsForSearch();
 		this.search = new Search().initSort().initPagination().initPageableExample();
 		return this;
+	}
+
+	private void initFormat() {
+		this.format = "format={hal_json | json}";// | xml}";
+	}
+
+	private void initFields() {
+		this.fields = "fields={-}{* | property | property.* | property.childProperty | property.child* | property[childProperty1,childProperty2] | (property1,property2)[childProperty]}{,}";
+	}
+
+	private void initFieldsForSearch() {
+		this.fields = "fields={-}{* | content | content.* | content.property | content.prop* | content.property.childProperty | content.property[childProperty1,childProperty2] | (content.property1,content.property2)[childProperty]}{,}";
 	}
 
 	@Data
@@ -52,12 +74,12 @@ public class ExtendedLink extends Link {
 		private String example;
 
 		public Search initParam() {
-			this.param = "search={(<resourceProperty | resourceProperty.parentProperty> <operators> <value>)}";
+			this.param = "search={resourceProperty | resourceProperty.parentProperty}{operators}{value}{Logical AND | Logical OR}";
 			return this;
 		}
 
 		public Search initSort() {
-			this.sort = "sort={property,asc | desc}";
+			this.sort = "sort={property},{asc | desc}";
 			return this;
 		}
 
