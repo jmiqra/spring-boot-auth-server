@@ -5,12 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.asraf</groupId>
-	<artifactId>spring-boot-hibernate-datajpa</artifactId>
+	<artifactId>spring-boot-hibernate-auth</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>spring-boot-hibernate-datajpa</name>
-	<description>Spring Boot based Web Application with Hibernate and Spring Data JPA</description>
+	<name>spring-boot-hibernate-auth</name>
+	<description>Spring Boot based Auth Application with Hibernate and Spring Data JPA</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
