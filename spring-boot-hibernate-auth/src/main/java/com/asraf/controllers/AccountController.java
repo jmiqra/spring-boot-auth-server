@@ -13,7 +13,6 @@ import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,8 +41,8 @@ import com.asraf.exceptions.ResourceNotFoundException;
 import com.asraf.services.RoleService;
 import com.asraf.services.UserService;
 import com.asraf.services.UserVerificationService;
+import com.asraf.services.email.EmailMessageBuilder;
 import com.asraf.services.email.EmailSenderService;
-import com.asraf.services.email.MessageBuilder;
 import com.asraf.templates.ChangePasswordTemplate;
 
 @RestController
@@ -125,8 +124,8 @@ public class AccountController {
 		User user = userService.getByUsername(requestDto.getUsername());
 		UserVerification userVerification = forgotPasswordMapper.getEntity(user);
 		userVerificationService.save(userVerification);
-		String updatePasswordUrl = linkTo(methodOn(this.getClass()).updatePassword(userVerification.getVerificationCode(), null))
-				.toString();
+		String updatePasswordUrl = linkTo(
+				methodOn(this.getClass()).updatePassword(userVerification.getVerificationCode(), null)).toString();
 		String callbackUrlWithUpdatePasswordUrl = requestDto.getCallbackUrl() + updatePasswordUrl;
 		sendEmail(user, callbackUrlWithUpdatePasswordUrl);
 	}
@@ -144,11 +143,13 @@ public class AccountController {
 
 	private void sendEmail(User user, String link) throws MessagingException, UnsupportedEncodingException {
 		InternetAddress replyTo = new InternetAddress("noreply@auth.com", "no-reply");
-		MessageBuilder messageBuilder = MessageBuilder.builder().emailReplyTo(replyTo).emailFrom(null).isHtml(true)
-				.emailBody(changePasswordTemplate.createTemplate(user, link)).emailSubject("Change Password").build()
-				.addEmailTo(user.getEmail(), user.getUsername());
-		ClassPathResource cpResource = new ClassPathResource("images/logo.png");
-		emailSenderService.buildEmailSender(messageBuilder).addInline("id101", cpResource).send();
+		String subject = "Change Password";
+		String body = changePasswordTemplate.createTemplate(user, link);
+		EmailMessageBuilder emailMessageBuilder = EmailMessageBuilder.builder().emailSubject(subject).emailBody(body)
+				.isHtml(true).emailReplyTo(replyTo).emailFrom(null).build()
+				.addEmailTo(user.getEmail(), user.getUsername()).buildMail(emailSenderService.getMimeMessage());
+		changePasswordTemplate.loadInlineImage(emailMessageBuilder);
+		emailSenderService.send();
 	}
 
 	private void checkDuplicateUsername(String userName) {
