@@ -1,5 +1,8 @@
 package com.asraf.controllers;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
@@ -10,8 +13,8 @@ import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,8 +41,8 @@ import com.asraf.exceptions.ResourceNotFoundException;
 import com.asraf.services.RoleService;
 import com.asraf.services.UserService;
 import com.asraf.services.UserVerificationService;
+import com.asraf.services.email.EmailMessageBuilder;
 import com.asraf.services.email.EmailSenderService;
-import com.asraf.services.email.MessageBuilder;
 import com.asraf.templates.ChangePasswordTemplate;
 
 @RestController
@@ -121,28 +124,32 @@ public class AccountController {
 		User user = userService.getByUsername(requestDto.getUsername());
 		UserVerification userVerification = forgotPasswordMapper.getEntity(user);
 		userVerificationService.save(userVerification);
-		String link = "http://localhost:8081/accounts/change-password/" + userVerification.getVerificationCode();
-		sendEmail(user, link);
+		String updatePasswordUrl = linkTo(
+				methodOn(this.getClass()).updatePassword(userVerification.getVerificationCode(), null)).toString();
+		String callbackUrlWithUpdatePasswordUrl = requestDto.getCallbackUrl() + updatePasswordUrl;
+		sendEmail(user, callbackUrlWithUpdatePasswordUrl);
 	}
 
 	@PutMapping("/change-password/{verificationCode}")
-	public void updatePassword(@PathVariable String verificationCode,
+	public ResponseEntity<Void> updatePassword(@PathVariable String verificationCode,
 			@Valid @RequestBody ChangePasswordRequestDto requestDto) {
 		UserVerification userVerification = userVerificationService.getByVerificationCode(verificationCode);
 		User user = userService.getById(userVerification.getUser().getId());
 		user.setPassword(userPasswordEncoder.encode(requestDto.getPassword()));
 		userService.save(user);
 		userVerificationService.deleteByUserId(user.getId());
-		return;
+		return null;
 	}
 
 	private void sendEmail(User user, String link) throws MessagingException, UnsupportedEncodingException {
 		InternetAddress replyTo = new InternetAddress("noreply@auth.com", "no-reply");
-		MessageBuilder messageBuilder = MessageBuilder.builder().emailReplyTo(replyTo).emailFrom(null).isHtml(true)
-				.emailBody(changePasswordTemplate.createTemplate(user, link))
-				.emailSubject("Change Password").build().addEmailTo(user.getEmail(), user.getUsername());
-		ClassPathResource cpResource = new ClassPathResource("images/logo.png");
-		emailSenderService.buildEmailSender(messageBuilder).addInline("id101", cpResource).send();
+		String subject = "Change Password";
+		String body = changePasswordTemplate.createTemplate(user, link);
+		EmailMessageBuilder emailMessageBuilder = EmailMessageBuilder.builder().emailSubject(subject).emailBody(body)
+				.isHtml(true).emailReplyTo(replyTo).emailFrom(null).build()
+				.addEmailTo(user.getEmail(), user.getUsername()).buildMail(emailSenderService.getMimeMessage());
+		changePasswordTemplate.loadInlineImages(emailMessageBuilder);
+		emailSenderService.send();
 	}
 
 	private void checkDuplicateUsername(String userName) {
