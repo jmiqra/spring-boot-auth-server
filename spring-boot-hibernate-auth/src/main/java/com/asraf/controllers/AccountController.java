@@ -148,7 +148,7 @@ public class AccountController {
 		EmailMessageBuilder emailMessageBuilder = EmailMessageBuilder.builder().emailSubject(subject).emailBody(body)
 				.isHtml(true).emailReplyTo(replyTo).emailFrom(null).build()
 				.addEmailTo(user.getEmail(), user.getUsername()).buildMail(emailSenderService.getMimeMessage());
-		changePasswordTemplate.loadInlineImage(emailMessageBuilder);
+		changePasswordTemplate.loadInlineImages(emailMessageBuilder);
 		emailSenderService.send();
 	}
 
