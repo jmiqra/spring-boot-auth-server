@@ -28,23 +28,34 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 	@Override
 	public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
 		Map<String, Object> additionalInfo = new HashMap<>();
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+				.getRequest();
 
+		// String clientId =
+		// decodeClientId(request.getHeader(HttpHeaders.AUTHORIZATION));
 		additionalInfo.put("exp", accessToken.getExpiration());
-		this.loadRequestRelatedClaims(additionalInfo);
+		this.loadRequestRelatedClaims(request, additionalInfo);
 		this.loadUserRelatedClaims(authentication.getName(), additionalInfo);
 
 		((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
 		return accessToken;
 	}
 
+	// private String decodeClientId(final String authorization) {
+	// String base64Credentials = authorization.substring("Basic".length()).trim();
+	// byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+	// String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+	// // credentials = username:password
+	// final String[] clientCredentials = credentials.split(":", 2);
+	// return clientCredentials[0];
+	// }
+
 	private void loadUserRelatedClaims(String username, Map<String, Object> additionalInfo) {
 		User user = userService.getByUsername(username);
 		additionalInfo.put("sub", user == null ? null : user.getId());
 	}
 
-	private void loadRequestRelatedClaims(Map<String, Object> additionalInfo) {
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-				.getRequest();
+	private void loadRequestRelatedClaims(HttpServletRequest request, Map<String, Object> additionalInfo) {
 		String baseUrlOfIssuer = request.getRequestURL().toString().replace(request.getRequestURI(),
 				request.getContextPath());
 		additionalInfo.put("iss", baseUrlOfIssuer);
