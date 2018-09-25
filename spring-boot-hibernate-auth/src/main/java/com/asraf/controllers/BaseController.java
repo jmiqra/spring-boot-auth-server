@@ -26,7 +26,7 @@ public abstract class BaseController {
 
 	protected long getCurrentUserId() throws JsonParseException, JsonMappingException, IOException {
 		this.loadTokenPayloadIfNeeded();
-		long userId = Long.parseLong(tokenPayload.get("userId").toString());
+		long userId = Long.parseLong(tokenPayload.get("sub").toString());
 		return userId;
 	}
 
