@@ -1,8 +1,7 @@
 package com.asraf.dtos.request.entities;
 
-import java.util.List;
-
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.asraf.dtos.request.BaseRequestDto;
@@ -14,12 +13,17 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class RoleRequestDto extends BaseRequestDto {
+public class UserClaimRequestDto extends BaseRequestDto {
+
+	@NotNull
+	private Long userId;
 
 	@NotBlank
-	@Size(min = 3, max = 45)
-	private String name;
+	@Size(min = 3, max = 100)
+	private String claimType;
 
-	private List<Long> userIds;
+	@NotBlank
+	@Size(min = 3, max = 100)
+	private String claimValue;
 
 }
