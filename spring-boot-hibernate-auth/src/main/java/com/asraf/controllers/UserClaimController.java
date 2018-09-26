@@ -79,7 +79,6 @@ public class UserClaimController {
 	}
 
 	@PutMapping("/{id}")
-	@ResponseStatus(HttpStatus.CREATED)
 	public UserClaimResponseDto update(@PathVariable long id, @Valid @RequestBody UserClaimRequestDto requestDto) {
 		UserClaim userClaim = userClaimService.getById(id);
 		userClaimMappper.loadEntity(requestDto, userClaim);
