@@ -19,16 +19,6 @@ public class RoleMapperImpl extends RequestResponseDtoMapperImpl<Role, RoleRespo
 	public RoleMapperImpl(ModelMapper modelMapper) {
 		super(modelMapper, RoleResponseDto.class, Role.class);
 
-		// PropertyMap<RoleVerification, RoleVerificationResponseDto>
-		// userVerificationEntityToResponsePropertyMap = new
-		// PropertyMap<RoleVerification, RoleVerificationResponseDto>() {
-		// protected void configure() {
-		// skip().setRole(null);
-		// }
-		// };
-		//
-		// super.setNestedObjectPropertyMap(userVerificationEntityToResponsePropertyMap);
-
 	}
 
 }

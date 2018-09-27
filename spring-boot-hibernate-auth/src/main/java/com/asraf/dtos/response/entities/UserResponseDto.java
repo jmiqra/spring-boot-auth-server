@@ -13,4 +13,5 @@ public class UserResponseDto extends BaseEntityResponseDto {
 	private String username;
 	private String email;
 	private List<UserVerificationResponseDto> userVerifications;
+	private List<UserClaimResponseDto> userClaims;
 }
