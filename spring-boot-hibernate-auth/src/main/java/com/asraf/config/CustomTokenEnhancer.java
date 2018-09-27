@@ -3,6 +3,7 @@ package com.asraf.config;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.asraf.entities.User;
+import com.asraf.entities.UserClaim;
+import com.asraf.services.UserClaimService;
 import com.asraf.services.UserService;
 import com.asraf.utils.StringUtils;
 
@@ -24,6 +27,8 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private UserClaimService userClaimService;
 
 	@Override
 	public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
@@ -52,7 +57,14 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 
 	private void loadUserRelatedClaims(String username, Map<String, Object> additionalInfo) {
 		User user = userService.getByUsername(username);
-		additionalInfo.put("sub", user == null ? null : user.getId());
+		if (user == null) {
+			return;
+		}
+		additionalInfo.put("sub", user.getId());
+		List<UserClaim> userClaims = userClaimService.getByUserId(user.getId());
+		userClaims.forEach(uc -> {
+			additionalInfo.put(uc.getClaimType(), uc.getClaimValue());
+		});
 	}
 
 	private void loadRequestRelatedClaims(HttpServletRequest request, Map<String, Object> additionalInfo) {
