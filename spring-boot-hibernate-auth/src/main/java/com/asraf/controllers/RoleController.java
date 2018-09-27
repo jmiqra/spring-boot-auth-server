@@ -1,6 +1,5 @@
 package com.asraf.controllers;
 
-import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,17 +50,12 @@ public class RoleController {
 		return response;
 	}
 
-	@GetMapping("/me")
-	public Principal role(Principal principal) {
-		return principal;
+	@GetMapping("/{id}")
+	public RoleResponseDto getById(@PathVariable long id) {
+		Role role = roleService.getById(id);
+		return roleMappper.getResponseDto(role);
 	}
 
-	/**
-	 * @SampleUrl /roles/query?search=(name==rats*;id>1,name==ratul);id=in=(2,3,4,5,6)&page=0&size=2&sort=name,asc&sort=email,desc
-	 * @param search
-	 * @param pageable
-	 * @return
-	 */
 	@GetMapping("/query")
 	public Page<RoleResponseDto> getByQuery(@RequestParam String search, Pageable pageable) {
 		Page<Role> roles = roleService.getByQuery(search, pageable);

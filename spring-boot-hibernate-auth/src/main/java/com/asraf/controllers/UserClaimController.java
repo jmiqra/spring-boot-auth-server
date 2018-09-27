@@ -1,6 +1,5 @@
 package com.asraf.controllers;
 
-import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -45,17 +44,12 @@ public class UserClaimController {
 		return response;
 	}
 
-	@GetMapping("/me")
-	public Principal userClaim(Principal principal) {
-		return principal;
+	@GetMapping("/{id}")
+	public UserClaimResponseDto getById(@PathVariable long id) {
+		UserClaim userClaim = userClaimService.getById(id);
+		return userClaimMappper.getResponseDto(userClaim);
 	}
 
-	/**
-	 * @SampleUrl /userClaims/query?search=(name==rats*;id>1,name==ratul);id=in=(2,3,4,5,6)&page=0&size=2&sort=name,asc&sort=email,desc
-	 * @param search
-	 * @param pageable
-	 * @return
-	 */
 	@GetMapping("/query")
 	public Page<UserClaimResponseDto> getByQuery(@RequestParam String search, Pageable pageable) {
 		Page<UserClaim> userClaims = userClaimService.getByQuery(search, pageable);

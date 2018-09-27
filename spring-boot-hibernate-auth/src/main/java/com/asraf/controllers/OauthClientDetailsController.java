@@ -1,6 +1,5 @@
 package com.asraf.controllers;
 
-import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -47,17 +46,12 @@ public class OauthClientDetailsController {
 		return response;
 	}
 
-	@GetMapping("/me")
-	public Principal oauthClientDetails(Principal principal) {
-		return principal;
+	@GetMapping("/{id}")
+	public OauthClientDetailsResponseDto getById(@PathVariable String id) {
+		OauthClientDetails oauthClientDetails = oauthClientDetailsService.getById(id);
+		return oauthClientDetailsMappper.getResponseDto(oauthClientDetails);
 	}
 
-	/**
-	 * @SampleUrl /oauthClientDetailss/query?search=(name==rats*;id>1,name==ratul);id=in=(2,3,4,5,6)&page=0&size=2&sort=name,asc&sort=email,desc
-	 * @param search
-	 * @param pageable
-	 * @return
-	 */
 	@GetMapping("/query")
 	public Page<OauthClientDetailsResponseDto> getByQuery(@RequestParam String search, Pageable pageable) {
 		Page<OauthClientDetails> oauthClientDetailss = oauthClientDetailsService.getByQuery(search, pageable);

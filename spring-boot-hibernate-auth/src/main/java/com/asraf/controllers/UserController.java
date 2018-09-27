@@ -74,24 +74,12 @@ public class UserController {
 		return userMappper.getResponseDtos(users);
 	}
 
-	/**
-	 * @SampleUrl /users/search-crud-pageable?name=asraf&email=ahmed@test.com&page=0&size=4&sort=name,asc&sort=email,desc
-	 * @param searchItem
-	 * @param pageable
-	 * @return
-	 */
 	@GetMapping("/search-crud-pageable")
 	public Page<UserResponseDto> getBySearchCrudPageable(UserSearch searchItem, Pageable pageable) {
 		Page<User> pagedUser = userService.getBySearchCrudPageable(searchItem, pageable);
 		return userMappper.getResponseDtos(pagedUser);
 	}
 
-	/**
-	 * @SampleUrl /users/query?search=(name==rats*;id>1,name==ratul);id=in=(2,3,4,5,6)&page=0&size=2&sort=name,asc&sort=email,desc
-	 * @param search
-	 * @param pageable
-	 * @return
-	 */
 	@GetMapping("/query")
 	public Page<UserResponseDto> getByQuery(@RequestParam String search, Pageable pageable) {
 		Page<User> users = userService.getByQuery(search, pageable);
