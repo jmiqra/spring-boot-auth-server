@@ -4,7 +4,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.validation.Valid;
 
@@ -54,12 +53,6 @@ public class UserClaimController extends BaseController {
 			PagedResourcesAssembler<UserClaim> pagedAssembler) {
 		Page<UserClaim> userClaims = userClaimService.getByQuery(search, pageable);
 		return pagedAssembler.toResource(userClaims, this.userClaimResourceAssembler);
-	}
-
-	@GetMapping("/all")
-	public List<UserClaimResource> getAll() {
-		List<UserClaim> userClaims = (List<UserClaim>) this.userClaimService.getAll();
-		return this.userClaimResourceAssembler.toResources(userClaims);
 	}
 
 	@GetMapping("/{id}")

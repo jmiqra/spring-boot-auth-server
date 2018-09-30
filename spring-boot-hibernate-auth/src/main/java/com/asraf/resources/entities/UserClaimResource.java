@@ -29,13 +29,18 @@ public class UserClaimResource extends BaseResource {
 
 		add(new ExtendedLink(linkTo(methodOn(UserClaimController.class).getById(id)).withSelfRel())
 				.withMethod(HttpMethod.GET));
+		add(new ExtendedLink(linkTo(methodOn(UserClaimController.class).update(id, null)).withSelfRel())
+				.withMethod(HttpMethod.PUT));
+		add(new ExtendedLink(linkTo(methodOn(UserClaimController.class).delete(id)).withSelfRel())
+				.withMethod(HttpMethod.DELETE));
 		add(new ExtendedLink(linkTo(UserClaimController.class).withRel("user-claims")).withMethod(HttpMethod.GET));
 		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByEmail(user.getEmail())).withRel("user"))
 				.withMethod(HttpMethod.GET));
-		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByName(user.getUsername())).withRel("user"))
-				.withMethod(HttpMethod.GET));
+		// add(new
+		// ExtendedLink(linkTo(methodOn(UserController.class).getByName(user.getUsername())).withRel("user"))
+		// .withMethod(HttpMethod.GET));
 		add(new ExtendedLink(
-				linkTo(methodOn(UserController.class).getByQuery("id==" + user.getId(), null)).withRel("user"))
+				linkTo(methodOn(UserController.class).getByQuery("id==" + user.getId(), null, null)).withRel("user"))
 						.withMethod(HttpMethod.GET));
 
 		this.loadCommonLink();
@@ -55,7 +60,7 @@ public class UserClaimResource extends BaseResource {
 				.withMethod(HttpMethod.GET));
 		add(new ExtendedLink(linkTo(UserClaimController.class).withRel("user-claims")).withMethod(HttpMethod.GET)
 				.withSearchableData());
-		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByQuery(null, null)).withRel("users"))
+		add(new ExtendedLink(linkTo(methodOn(UserController.class).getByQuery(null, null, null)).withRel("users"))
 				.withMethod(HttpMethod.GET).withSearchableData());
 	}
 }
