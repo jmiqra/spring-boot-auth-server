@@ -1,7 +1,5 @@
 package com.asraf.config;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -21,7 +18,7 @@ import com.asraf.entities.User;
 import com.asraf.entities.UserClaim;
 import com.asraf.services.UserClaimService;
 import com.asraf.services.UserService;
-import com.asraf.utils.StringUtils;
+import com.asraf.utils.HttpServletUtils;
 
 public class CustomTokenEnhancer implements TokenEnhancer {
 
@@ -71,20 +68,8 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 		String baseUrlOfIssuer = request.getRequestURL().toString().replace(request.getRequestURI(),
 				request.getContextPath());
 		additionalInfo.put("iss", baseUrlOfIssuer);
-		additionalInfo.put("aud", getRefererBaseUrl(request));
+		additionalInfo.put("aud", HttpServletUtils.getRefererBaseUrl(request));
 	}
 
-	private String getRefererBaseUrl(HttpServletRequest request) {
-		String refererUrlStr = request.getHeader(HttpHeaders.REFERER);
-		if (StringUtils.isNullOrEmpty(refererUrlStr)) {
-			return null;
-		}
-		try {
-			URL refererUrl = new URL(refererUrlStr);
-			String baseUrlOfAudience = refererUrlStr.replaceAll(refererUrl.getPath(), "");
-			return baseUrlOfAudience;
-		} catch (MalformedURLException e) {
-			return "NO BASE URL FOUND TO SET AUDIENCE";
-		}
-	}
+	
 }

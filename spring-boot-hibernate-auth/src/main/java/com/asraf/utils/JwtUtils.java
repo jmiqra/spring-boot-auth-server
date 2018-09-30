@@ -36,18 +36,25 @@ public class JwtUtils {
 	}
 
 	public Object getPayloadValue(String payloadKey) throws JsonParseException, JsonMappingException, IOException {
-		this.loadTokenPayloadIfNeeded();
+		this.loadTokenPayloadIfNeeded(this.getRequest());
+		return tokenPayload.get(payloadKey);
+	}
+
+	public Object getPayloadValue(String payloadKey, HttpServletRequest request)
+			throws JsonParseException, JsonMappingException, IOException {
+		this.loadTokenPayloadIfNeeded(request);
 		return tokenPayload.get(payloadKey);
 	}
 
 	public long getCurrentUserId() throws JsonParseException, JsonMappingException, IOException {
-		this.loadTokenPayloadIfNeeded();
+		this.loadTokenPayloadIfNeeded(this.getRequest());
 		long userId = Long.parseLong(tokenPayload.get("sub").toString());
 		return userId;
 	}
 
-	private void loadTokenPayloadIfNeeded() throws JsonParseException, JsonMappingException, IOException {
-		String currentJwt = getTokenFromHeader();
+	private void loadTokenPayloadIfNeeded(HttpServletRequest request)
+			throws JsonParseException, JsonMappingException, IOException {
+		String currentJwt = getTokenFromHeader(request);
 		if (!currentJwt.equals(this.previousJwt)) {
 			String decodedString = JwtHelper.decode(currentJwt).getClaims();
 			tokenPayload = new ObjectMapper().readValue(decodedString, TYPE_REF);
@@ -55,15 +62,19 @@ public class JwtUtils {
 		}
 	}
 
-	private String getTokenFromHeader() throws NullArgumentException {
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-				.getRequest();
+	private String getTokenFromHeader(HttpServletRequest request) throws NullArgumentException {
 		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (authHeader != null
 				&& (authHeader.startsWith(TOKEN_TYPE) || authHeader.startsWith(TOKEN_TYPE.toLowerCase()))) {
 			return authHeader.substring(TOKEN_TYPE.length());
 		}
 		throw new NullArgumentException(HttpHeaders.AUTHORIZATION, "No bearer token found");
+	}
+
+	private HttpServletRequest getRequest() {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+				.getRequest();
+		return request;
 	}
 
 }
