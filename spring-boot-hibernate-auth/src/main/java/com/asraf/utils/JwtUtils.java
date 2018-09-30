@@ -5,11 +5,12 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,13 +30,14 @@ public class JwtUtils {
 	private String previousJwt = null;
 	private HashMap<String, Object> tokenPayload = null;
 
-	private HttpServletRequest request;
-
-	@Autowired
-	public JwtUtils(HttpServletRequest request) {
-		this.request = request;
+	public JwtUtils() {
 		this.tokenPayload = null;
 		this.previousJwt = null;
+	}
+
+	public Object getPayloadValue(String payloadKey) throws JsonParseException, JsonMappingException, IOException {
+		this.loadTokenPayloadIfNeeded();
+		return tokenPayload.get(payloadKey);
 	}
 
 	public long getCurrentUserId() throws JsonParseException, JsonMappingException, IOException {
@@ -54,6 +56,8 @@ public class JwtUtils {
 	}
 
 	private String getTokenFromHeader() throws NullArgumentException {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+				.getRequest();
 		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (authHeader != null
 				&& (authHeader.startsWith(TOKEN_TYPE) || authHeader.startsWith(TOKEN_TYPE.toLowerCase()))) {
