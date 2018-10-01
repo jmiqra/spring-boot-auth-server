@@ -1,5 +1,9 @@
 package com.asraf.resources.assemblers.entities;
 
+import java.io.UnsupportedEncodingException;
+
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +26,12 @@ public class AccountResourceAssembler extends BaseResourceAssembler<User, Accoun
 
 	@Override
 	public AccountResource toResource(User entity) {
-		return new AccountResource(entity, userMapper);
+		try {
+			return new AccountResource(entity, userMapper);
+		} catch (UnsupportedEncodingException | MessagingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

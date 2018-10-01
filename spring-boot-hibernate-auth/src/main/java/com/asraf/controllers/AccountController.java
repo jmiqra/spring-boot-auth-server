@@ -92,7 +92,7 @@ public class AccountController extends BaseController {
 
 	@PostMapping("")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void createUser(@Valid @RequestBody UserRequestDto requestDto) {
+	public AccountResource createUser(@Valid @RequestBody UserRequestDto requestDto) {
 		User user = userMappper.getEntity(requestDto);
 		checkDuplicateUsername(requestDto.getUsername());
 		checkDuplicateEmail(requestDto.getEmail());
@@ -103,11 +103,12 @@ public class AccountController extends BaseController {
 		Set<Role> roles = addRoles(user, roleIdList);
 		user.setRoles(roles);
 		userService.save(user);
-		return;
+		return accountResourceAssembler.toResource(user);
 	}
 
 	@PutMapping("/{id}")
-	public void updateUser(@PathVariable long id, @Valid @RequestBody UserDetailsUpdateRequestDto requestDto) {
+	public AccountResource updateUser(@PathVariable long id,
+			@Valid @RequestBody UserDetailsUpdateRequestDto requestDto) {
 		User user = userService.getById(id);
 		user.getRoles().size();
 		if (!user.getUsername().equals(requestDto.getUsername())) {
@@ -122,12 +123,12 @@ public class AccountController extends BaseController {
 		Set<Role> roles = addRoles(user, roleIdList);
 		user.setRoles(roles);
 		userService.save(user);
-		return;
+		return accountResourceAssembler.toResource(user);
 	}
 
 	@PostMapping("/forgot-password")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto)
+	public AccountResource forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto)
 			throws MessagingException, UnsupportedEncodingException {
 		User user = userService.getByUsername(requestDto.getUsername());
 		UserVerification userVerification = forgotPasswordMapper.getEntity(user);
@@ -136,6 +137,7 @@ public class AccountController extends BaseController {
 				methodOn(this.getClass()).updatePassword(userVerification.getVerificationCode(), null)).toString();
 		String callbackUrlWithUpdatePasswordUrl = requestDto.getCallbackUrl() + updatePasswordUrl;
 		sendEmail(user, callbackUrlWithUpdatePasswordUrl);
+		return accountResourceAssembler.toResource(user);
 	}
 
 	@PutMapping("/change-password/{verificationCode}")

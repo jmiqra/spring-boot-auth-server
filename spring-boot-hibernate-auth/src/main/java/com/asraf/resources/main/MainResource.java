@@ -2,6 +2,7 @@ package com.asraf.resources.main;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpMethod;
 
 import com.asraf.controllers.AccountController;
@@ -34,6 +35,9 @@ public class MainResource extends BaseResource {
 
 		add(new ExtendedLink(linkTo(OauthClientDetailsController.class).withRel("oauth-clients"))
 				.withMethod(HttpMethod.GET).withSearchableData());
+
+		Link token = new Link("http://localhost:8081/oauth/token", "token");
+		add(new ExtendedLink(token).withMethod(HttpMethod.GET));
 
 	}
 
