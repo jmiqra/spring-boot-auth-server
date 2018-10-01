@@ -9,8 +9,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class UserClaimResponseDto extends BaseEntityResponseDto {
 
-	private UserResponseDto user;
 	private String claimType;
 	private String claimValue;
+	private UserResponseDto user;
 
 }

@@ -26,8 +26,7 @@ public class UserVerificationMapperImpl
 		PropertyMap<UserVerificationRequestDto, UserVerification> requestToEntityPropertyMap = new PropertyMap<UserVerificationRequestDto, UserVerification>() {
 			protected void configure() {
 				map().getUser().setId(source.getUserId());
-				// map().setCreationTime(new Date());
-				// using(convertMassToLarge).map(source.getMass()).setLarge(false);
+				map().getUser().setUserClaims(null);
 			}
 		};
 
@@ -46,7 +45,7 @@ public class UserVerificationMapperImpl
 		userVerification.setCreationTime(new Date());
 		return userVerification;
 	}
-	
+
 	public void loadEntity(UserVerificationRequestDto requestDto, UserVerification entity) {
 		entity.setUser(null);
 		super.loadEntity(requestDto, entity);

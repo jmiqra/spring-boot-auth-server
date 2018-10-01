@@ -4,7 +4,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.validation.Valid;
 
@@ -55,12 +54,6 @@ public class UserVerificationController extends BaseController {
 			PagedResourcesAssembler<UserVerification> pagedAssembler) {
 		Page<UserVerification> userVerifications = userVerificationService.getByQuery(search, pageable);
 		return pagedAssembler.toResource(userVerifications, this.userVerificationResourceAssembler);
-	}
-
-	@GetMapping("/all")
-	public List<UserVerificationResource> getAll() {
-		List<UserVerification> userVerifications = (List<UserVerification>) this.userVerificationService.getAll();
-		return this.userVerificationResourceAssembler.toResources(userVerifications);
 	}
 
 	@GetMapping("/{id}")

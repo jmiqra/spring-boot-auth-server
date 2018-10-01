@@ -13,6 +13,10 @@ import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,12 +36,13 @@ import com.asraf.dtos.request.account.ChangePasswordRequestDto;
 import com.asraf.dtos.request.account.ForgotPasswordRequestDto;
 import com.asraf.dtos.request.account.UserDetailsUpdateRequestDto;
 import com.asraf.dtos.request.entities.UserRequestDto;
-import com.asraf.dtos.response.entities.UserResponseDto;
 import com.asraf.entities.Role;
 import com.asraf.entities.User;
 import com.asraf.entities.UserVerification;
 import com.asraf.exceptions.DuplicateResourceFoundException;
 import com.asraf.exceptions.ResourceNotFoundException;
+import com.asraf.resources.assemblers.entities.AccountResourceAssembler;
+import com.asraf.resources.entities.AccountResource;
 import com.asraf.services.RoleService;
 import com.asraf.services.UserService;
 import com.asraf.services.UserVerificationService;
@@ -47,7 +52,7 @@ import com.asraf.templates.ChangePasswordTemplate;
 
 @RestController
 @RequestMapping("/accounts")
-public class AccountController {
+public class AccountController extends BaseController {
 
 	private UserService userService;
 	private UserMapper userMappper;
@@ -58,12 +63,14 @@ public class AccountController {
 	private ChangePasswordTemplate changePasswordTemplate;
 	private UserVerificationService userVerificationService;
 	private ForgotPasswordMapper forgotPasswordMapper;
+	private AccountResourceAssembler accountResourceAssembler;
 
 	@Autowired
 	public AccountController(UserService userService, UserMapper userMappper, RoleService roleService,
 			PasswordEncoder userPasswordEncoder, UserDetailsUpdateMapper userDetailsUpdateMapper,
 			EmailSenderService emailSenderService, ChangePasswordTemplate changePasswordTemplate,
-			UserVerificationService userVerificationService, ForgotPasswordMapper forgotPasswordMapper) {
+			UserVerificationService userVerificationService, ForgotPasswordMapper forgotPasswordMapper,
+			AccountResourceAssembler accountResourceAssembler) {
 		this.userMappper = userMappper;
 		this.userService = userService;
 		this.roleService = roleService;
@@ -73,17 +80,19 @@ public class AccountController {
 		this.changePasswordTemplate = changePasswordTemplate;
 		this.userVerificationService = userVerificationService;
 		this.forgotPasswordMapper = forgotPasswordMapper;
+		this.accountResourceAssembler = accountResourceAssembler;
 	}
 
 	@GetMapping("")
-	public List<UserResponseDto> getAll() {
-		List<UserResponseDto> response = userMappper.getResponseDtos(this.userService.getAll());
-		return response;
+	public PagedResources<AccountResource> getByQuery(String search, Pageable pageable,
+			PagedResourcesAssembler<User> pagedAssembler) {
+		Page<User> users = userService.getByQuery(search, pageable);
+		return pagedAssembler.toResource(users, this.accountResourceAssembler);
 	}
 
 	@PostMapping("")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void createUser(@Valid @RequestBody UserRequestDto requestDto) throws Exception {
+	public AccountResource createUser(@Valid @RequestBody UserRequestDto requestDto) {
 		User user = userMappper.getEntity(requestDto);
 		checkDuplicateUsername(requestDto.getUsername());
 		checkDuplicateEmail(requestDto.getEmail());
@@ -94,12 +103,12 @@ public class AccountController {
 		Set<Role> roles = addRoles(user, roleIdList);
 		user.setRoles(roles);
 		userService.save(user);
-		return;
+		return accountResourceAssembler.toResource(user);
 	}
 
 	@PutMapping("/{id}")
-	public void updateUser(@PathVariable long id, @Valid @RequestBody UserDetailsUpdateRequestDto requestDto)
-			throws Exception {
+	public AccountResource updateUser(@PathVariable long id,
+			@Valid @RequestBody UserDetailsUpdateRequestDto requestDto) {
 		User user = userService.getById(id);
 		user.getRoles().size();
 		if (!user.getUsername().equals(requestDto.getUsername())) {
@@ -114,12 +123,12 @@ public class AccountController {
 		Set<Role> roles = addRoles(user, roleIdList);
 		user.setRoles(roles);
 		userService.save(user);
-		return;
+		return accountResourceAssembler.toResource(user);
 	}
 
 	@PostMapping("/forgot-password")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto)
+	public AccountResource forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto requestDto)
 			throws MessagingException, UnsupportedEncodingException {
 		User user = userService.getByUsername(requestDto.getUsername());
 		UserVerification userVerification = forgotPasswordMapper.getEntity(user);
@@ -128,6 +137,7 @@ public class AccountController {
 				methodOn(this.getClass()).updatePassword(userVerification.getVerificationCode(), null)).toString();
 		String callbackUrlWithUpdatePasswordUrl = requestDto.getCallbackUrl() + updatePasswordUrl;
 		sendEmail(user, callbackUrlWithUpdatePasswordUrl);
+		return accountResourceAssembler.toResource(user);
 	}
 
 	@PutMapping("/change-password/{verificationCode}")

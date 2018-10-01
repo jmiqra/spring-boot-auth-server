@@ -27,13 +27,19 @@ public class UserClaimMapperImpl extends
 			}
 		};
 
-		super.setRequestToEntityPropertyMap(requestToEntityPropertyMap);
+		PropertyMap<UserClaim, UserClaimResponseDto> entityToResponsePropertyMap = new PropertyMap<UserClaim, UserClaimResponseDto>() {
+			protected void configure() {
+				map().setId(source.getId());
+				skip().getUser().setUserClaims(null);
+			}
+		};
 
+		super.setRequestToEntityPropertyMap(requestToEntityPropertyMap)
+				.setEntityToResponsePropertyMap(entityToResponsePropertyMap);
 	}
 
 	public void loadEntity(UserClaimRequestDto requestDto, UserClaim entity) {
 		entity.setUser(null);
 		super.loadEntity(requestDto, entity);
 	}
-
 }
