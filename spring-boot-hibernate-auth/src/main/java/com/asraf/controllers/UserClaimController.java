@@ -42,8 +42,7 @@ public class UserClaimController extends BaseController {
 	private final UserClaimResourceAssembler userClaimResourceAssembler;
 
 	@Autowired
-	public UserClaimController(UserClaimService userClaimService,
-			UserClaimMapper userClaimMappper,
+	public UserClaimController(UserClaimService userClaimService, UserClaimMapper userClaimMappper,
 			UserClaimResourceAssembler userClaimResourceAssembler) {
 		this.userClaimMappper = userClaimMappper;
 		this.userClaimService = userClaimService;
@@ -80,15 +79,13 @@ public class UserClaimController extends BaseController {
 	@DeleteMapping("/{id}")
 	public UserClaimResource delete(@PathVariable long id) {
 		UserClaim userClaim = userClaimService.getById(id);
-		UserClaimResource response = this.userClaimResourceAssembler.toResource(userClaim)
-				.forDeletion();
+		UserClaimResource response = this.userClaimResourceAssembler.toResource(userClaim).forDeletion();
 		userClaimService.delete(userClaim);
 		return response;
 	}
 
 	@PutMapping("/{id}")
-	public UserClaimResource update(@PathVariable long id,
-			@Valid @RequestBody UserClaimRequestDto requestDto) {
+	public UserClaimResource update(@PathVariable long id, @Valid @RequestBody UserClaimRequestDto requestDto) {
 		UserClaim userClaim = userClaimService.getById(id);
 		userClaimMappper.loadEntity(requestDto, userClaim);
 		userClaimService.save(userClaim);

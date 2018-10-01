@@ -1,5 +1,6 @@
 package com.asraf.services.persistence;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,10 @@ public class UserClaimServiceImpl implements UserClaimService {
 
 	public Iterable<UserClaim> getAll() {
 		return userClaimRepository.findAll();
+	}
+
+	public List<UserClaim> getByUserId(long userId) {
+		return userClaimRepository.findByUserId(userId);
 	}
 
 	public Page<UserClaim> getByQuery(String search, Pageable pageable) {
