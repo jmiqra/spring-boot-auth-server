@@ -65,9 +65,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 	}
 
 	private void loadRequestRelatedClaims(HttpServletRequest request, Map<String, Object> additionalInfo) {
-		String baseUrlOfIssuer = request.getRequestURL().toString().replace(request.getRequestURI(),
-				request.getContextPath());
-		additionalInfo.put("iss", baseUrlOfIssuer);
+		additionalInfo.put("iss", HttpServletUtils.getBaseUrl(request));
 		additionalInfo.put("aud", HttpServletUtils.getRefererBaseUrl(request));
 	}
 

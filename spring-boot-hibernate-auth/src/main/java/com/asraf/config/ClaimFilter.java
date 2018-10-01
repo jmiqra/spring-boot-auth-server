@@ -36,12 +36,12 @@ public class ClaimFilter implements Filter {
 		final HttpServletResponse response = (HttpServletResponse) res;
 		final HttpServletRequest request = (HttpServletRequest) req;
 
-		Object payloadAudience = jwtUtils.getPayloadValue("aud", request);
-		String requestedAudience = HttpServletUtils.getRefererBaseUrl(request);
-		if ((requestedAudience != null && payloadAudience != null
-				&& !payloadAudience.toString().equals(requestedAudience)) || (requestedAudience != payloadAudience)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Audience mismatch");
-		}
+//		Object payloadAudience = jwtUtils.getPayloadValue("aud", request);
+//		String requestedAudience = HttpServletUtils.getRefererBaseUrl(request);
+//		if ((requestedAudience != null && payloadAudience != null
+//				&& !payloadAudience.toString().equals(requestedAudience)) || (requestedAudience != payloadAudience)) {
+//			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Audience mismatch");
+//		}
 
 		chain.doFilter(req, res);
 	}

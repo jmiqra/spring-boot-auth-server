@@ -13,6 +13,7 @@ import com.asraf.controllers.UserController;
 import com.asraf.controllers.UserVerificationController;
 import com.asraf.resources.BaseResource;
 import com.asraf.resources.ExtendedLink;
+import com.asraf.utils.HttpServletUtils;
 
 public class MainResource extends BaseResource {
 
@@ -36,8 +37,8 @@ public class MainResource extends BaseResource {
 		add(new ExtendedLink(linkTo(OauthClientDetailsController.class).withRel("oauth-clients"))
 				.withMethod(HttpMethod.GET).withSearchableData());
 
-		Link token = new Link("http://localhost:8081/oauth/token", "token");
-		add(new ExtendedLink(token).withMethod(HttpMethod.GET));
+		String baseUrl = HttpServletUtils.getBaseUrl();
+		add(new ExtendedLink(new Link(baseUrl + "/oauth/token").withRel("token")).withMethod(HttpMethod.GET));
 
 	}
 

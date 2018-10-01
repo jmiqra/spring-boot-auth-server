@@ -1,4 +1,4 @@
-package com.asraf.resources.assemblers.entities;
+package com.asraf.resources.assemblers.account;
 
 import java.io.UnsupportedEncodingException;
 
@@ -8,26 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.asraf.controllers.AccountController;
-import com.asraf.dtos.mapper.UserMapper;
+import com.asraf.dtos.mapper.AccountUserMapper;
 import com.asraf.entities.User;
+import com.asraf.resources.account.AccountResource;
 import com.asraf.resources.assemblers.BaseResourceAssembler;
-import com.asraf.resources.entities.AccountResource;
 
 @Component
 public class AccountResourceAssembler extends BaseResourceAssembler<User, AccountResource> {
 
-	private final UserMapper userMapper;
+	private final AccountUserMapper accountUserMapper;
 
 	@Autowired
-	public AccountResourceAssembler(UserMapper userMapper) {
+	public AccountResourceAssembler(AccountUserMapper accountUserMapper) {
 		super(AccountController.class, AccountResource.class);
-		this.userMapper = userMapper;
+		this.accountUserMapper = accountUserMapper;
 	}
 
 	@Override
 	public AccountResource toResource(User entity) {
 		try {
-			return new AccountResource(entity, userMapper);
+			return new AccountResource(entity, accountUserMapper);
 		} catch (UnsupportedEncodingException | MessagingException e) {
 			e.printStackTrace();
 		}
