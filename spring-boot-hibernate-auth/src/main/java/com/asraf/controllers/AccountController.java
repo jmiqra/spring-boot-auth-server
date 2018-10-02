@@ -4,6 +4,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,8 @@ import com.asraf.dtos.request.account.ChangePasswordRequestDto;
 import com.asraf.dtos.request.account.ForgotPasswordRequestDto;
 import com.asraf.dtos.request.account.UserDetailsUpdateRequestDto;
 import com.asraf.dtos.request.entities.UserRequestDto;
+import com.asraf.dtos.response.requestdto.RequestBodyResponseDto;
+import com.asraf.dtos.response.requestdto.RequestDataCollectionResponseDto;
 import com.asraf.entities.Role;
 import com.asraf.entities.User;
 import com.asraf.entities.UserVerification;
@@ -107,7 +110,7 @@ public class AccountController extends BaseController {
 	}
 
 	@PutMapping("/{id}")
-	public AccountResource updateUser(@PathVariable long id,
+	public AccountResource updateUser(@PathVariable Long id,
 			@Valid @RequestBody UserDetailsUpdateRequestDto requestDto) {
 		User user = userService.getById(id);
 		user.getRoles().size();
@@ -160,6 +163,39 @@ public class AccountController extends BaseController {
 				.addEmailTo(user.getEmail(), user.getUsername()).buildMail(emailSenderService.getMimeMessage());
 		changePasswordTemplate.loadInlineImages(emailMessageBuilder);
 		emailSenderService.send();
+	}
+
+	@GetMapping("/requests")
+	public RequestDataCollectionResponseDto getRequests() throws UnsupportedEncodingException, MessagingException {
+		RequestDataCollectionResponseDto requestDataCollection = new RequestDataCollectionResponseDto();
+		this.addRequestDataOfPostUser(requestDataCollection).addRequestDataOfPutUser(requestDataCollection)
+				.addRequestDataOfPostForgetPassword(requestDataCollection);
+		return requestDataCollection;
+	}
+
+	private AccountController addRequestDataOfPostUser(RequestDataCollectionResponseDto requestDataCollection) {
+		RequestBodyResponseDto<UserRequestDto> requestBody = new RequestBodyResponseDto<UserRequestDto>(
+				UserRequestDto.class);
+		URI createUserUri = linkTo(methodOn(AccountController.class).createUser(null)).toUri();
+		requestDataCollection.addRequest(createUserUri, org.springframework.http.HttpMethod.POST, requestBody);
+		return this;
+	}
+
+	private AccountController addRequestDataOfPutUser(RequestDataCollectionResponseDto requestDataCollection) {
+		RequestBodyResponseDto<UserDetailsUpdateRequestDto> requestBody = new RequestBodyResponseDto<UserDetailsUpdateRequestDto>(
+				UserDetailsUpdateRequestDto.class);
+		URI updateUserUri = linkTo(methodOn(AccountController.class).updateUser(null, null)).toUri();
+		requestDataCollection.addRequest(updateUserUri, org.springframework.http.HttpMethod.PUT, requestBody);
+		return this;
+	}
+
+	private AccountController addRequestDataOfPostForgetPassword(RequestDataCollectionResponseDto requestDataCollection)
+			throws UnsupportedEncodingException, MessagingException {
+		RequestBodyResponseDto<ForgotPasswordRequestDto> requestBody = new RequestBodyResponseDto<ForgotPasswordRequestDto>(
+				ForgotPasswordRequestDto.class);
+		URI forgetPasswordUri = linkTo(methodOn(AccountController.class).forgotPassword(null)).toUri();
+		requestDataCollection.addRequest(forgetPasswordUri, org.springframework.http.HttpMethod.POST, requestBody);
+		return this;
 	}
 
 	private void checkDuplicateUsername(String userName) {
