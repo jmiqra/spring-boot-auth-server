@@ -111,17 +111,17 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 				.setMessage(ex.getMessage()).build();
 		return buildResponseEntity(apiError);
 	}
-	
+
 	@ExceptionHandler(ResourceNotFoundException.class)
 	protected ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
 		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)
 				.setMessage(ex.getMessage()).build();
 		return buildResponseEntity(apiError);
 	}
-	
+
 	@ExceptionHandler(DuplicateResourceFoundException.class)
 	protected ResponseEntity<Object> handleDuplicateResourceFoundException(DuplicateResourceFoundException ex) {
-		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.NOT_FOUND)
+		ApiErrorResponseDto apiError = this.apiErrorMapper.initResponseDto().setStatus(HttpStatus.CONFLICT)
 				.setMessage(ex.getMessage()).build();
 		return buildResponseEntity(apiError);
 	}
@@ -191,7 +191,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 				.setMessage(message).setDebugMessage(ex).build();
 		return buildResponseEntity(apiError);
 	}
-	
+
 	@ExceptionHandler(value = { Exception.class })
 	protected ResponseEntity<Object> handleException(RuntimeException ex, WebRequest request) {
 		log.error(ex);
