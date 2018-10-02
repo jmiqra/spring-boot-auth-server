@@ -15,9 +15,9 @@ import com.asraf.resources.BaseResource;
 import com.asraf.resources.ExtendedLink;
 import com.asraf.utils.HttpServletUtils;
 
-public class MainResource extends BaseResource {
+public class MainAuthenticatedResource extends BaseResource {
 
-	public MainResource() {
+	public MainAuthenticatedResource() {
 
 		add(new ExtendedLink(linkTo(AccountController.class).withRel("accounts")).withMethod(HttpMethod.GET)
 				.withSearchableData());

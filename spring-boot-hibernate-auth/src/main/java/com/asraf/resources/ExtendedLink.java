@@ -51,7 +51,13 @@ public class ExtendedLink extends Link {
 		this.search = new Search().initSort().initPagination().initPageableExample();
 		return this;
 	}
-
+	
+	public ExtendedLink withNullFormatAndFields() {
+		this.format = null;
+		this.fields = null;
+		return this;
+	}
+	
 	private void initFormat() {
 		this.format = "format={hal_json | json}";// | xml}";
 	}

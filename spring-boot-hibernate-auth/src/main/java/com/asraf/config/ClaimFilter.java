@@ -46,7 +46,7 @@ public class ClaimFilter implements Filter {
 				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Audience mismatch");
 			}
 		} catch (FormatMismatch e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		chain.doFilter(req, res);

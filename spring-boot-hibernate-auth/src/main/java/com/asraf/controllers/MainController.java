@@ -1,5 +1,9 @@
 package com.asraf.controllers;
 
+import java.io.UnsupportedEncodingException;
+
+import javax.mail.MessagingException;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,15 +14,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.asraf.constants.RolePreAuthorizeConditions;
-import com.asraf.resources.main.MainResource;
+import com.asraf.resources.main.MainAnonymousResource;
+import com.asraf.resources.main.MainAuthenticatedResource;
 
 @RestController
 @RequestMapping("")
 public class MainController {
 
 	@GetMapping("")
-	public MainResource getAllLinks() {
-		return new MainResource();
+	public MainAnonymousResource getAnonymousLinks() throws UnsupportedEncodingException, MessagingException {
+		return new MainAnonymousResource();
+	}
+
+	@GetMapping("/authenticated-links")
+	public MainAuthenticatedResource getAuthenticatedLinks() {
+		return new MainAuthenticatedResource();
 	}
 
 	@GetMapping("/{id}")

@@ -49,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-        	.antMatchers("/accounts/forgot-password", "/accounts/change-password/*")
+        	.antMatchers("/", "/accounts/forgot-password", "/accounts/change-password/*")
         	.antMatchers(HttpMethod.POST, "/accounts");
     }
     
