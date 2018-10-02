@@ -4,6 +4,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 
 import javax.mail.MessagingException;
 
@@ -18,7 +19,7 @@ import com.asraf.utils.HttpServletUtils;
 
 public class MainAnonymousResource extends BaseResource {
 
-	public MainAnonymousResource() throws UnsupportedEncodingException, MessagingException {
+	public MainAnonymousResource() throws UnsupportedEncodingException, MessagingException, URISyntaxException {
 
 		String baseUrl = HttpServletUtils.getBaseUrl();
 
@@ -32,6 +33,9 @@ public class MainAnonymousResource extends BaseResource {
 		add(new ExtendedLink(
 				linkTo(methodOn(MainController.class).getAuthenticatedLinks()).withRel("authenticated-links"))
 						.withMethod(HttpMethod.GET).withNullFormatAndFields());
+
+		add(new ExtendedLink(linkTo(methodOn(MainController.class).getRequests()).withRel("requests"))
+				.withMethod(HttpMethod.GET));
 
 		add(new ExtendedLink(linkTo(methodOn(AccountController.class).createUser(null)).withRel("sign-up"))
 				.withMethod(HttpMethod.POST));
