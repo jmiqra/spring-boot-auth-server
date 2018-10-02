@@ -3,6 +3,7 @@ package com.asraf.config;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -35,10 +36,13 @@ public class ClaimPermissionEvaluator implements PermissionEvaluator {
 					return false;
 				}
 			}
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (FormatMismatch e) {
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/*

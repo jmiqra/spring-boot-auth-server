@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.jwt.JwtHelper;
@@ -16,8 +17,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import freemarker.template.utility.NullArgumentException;
 
 @Component
 @Scope(value = "prototype")
@@ -35,25 +34,26 @@ public class JwtUtils {
 		this.previousJwt = null;
 	}
 
-	public Object getPayloadValue(String payloadKey) throws JsonParseException, JsonMappingException, IOException {
+	public Object getPayloadValue(String payloadKey)
+			throws JsonParseException, JsonMappingException, IOException, FormatMismatch {
 		this.loadTokenPayloadIfNeeded(this.getRequest());
 		return tokenPayload.get(payloadKey);
 	}
 
 	public Object getPayloadValue(String payloadKey, HttpServletRequest request)
-			throws JsonParseException, JsonMappingException, IOException {
+			throws JsonParseException, JsonMappingException, IOException, FormatMismatch {
 		this.loadTokenPayloadIfNeeded(request);
 		return tokenPayload.get(payloadKey);
 	}
 
-	public long getCurrentUserId() throws JsonParseException, JsonMappingException, IOException {
+	public long getCurrentUserId() throws JsonParseException, JsonMappingException, IOException, FormatMismatch {
 		this.loadTokenPayloadIfNeeded(this.getRequest());
 		long userId = Long.parseLong(tokenPayload.get("sub").toString());
 		return userId;
 	}
 
 	private void loadTokenPayloadIfNeeded(HttpServletRequest request)
-			throws JsonParseException, JsonMappingException, IOException {
+			throws JsonParseException, JsonMappingException, IOException, FormatMismatch {
 		String currentJwt = getTokenFromHeader(request);
 		if (!currentJwt.equals(this.previousJwt)) {
 			String decodedString = JwtHelper.decode(currentJwt).getClaims();
@@ -62,13 +62,13 @@ public class JwtUtils {
 		}
 	}
 
-	private String getTokenFromHeader(HttpServletRequest request) throws NullArgumentException {
+	private String getTokenFromHeader(HttpServletRequest request) throws FormatMismatch {
 		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (authHeader != null
 				&& (authHeader.startsWith(TOKEN_TYPE) || authHeader.startsWith(TOKEN_TYPE.toLowerCase()))) {
 			return authHeader.substring(TOKEN_TYPE.length());
 		}
-		throw new NullArgumentException(HttpHeaders.AUTHORIZATION, "No bearer token found");
+		throw new FormatMismatch("No 'bearer' token found in " + HttpHeaders.AUTHORIZATION + " header");
 	}
 
 	private HttpServletRequest getRequest() {

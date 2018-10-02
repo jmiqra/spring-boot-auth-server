@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -36,12 +37,17 @@ public class ClaimFilter implements Filter {
 		final HttpServletResponse response = (HttpServletResponse) res;
 		final HttpServletRequest request = (HttpServletRequest) req;
 
-//		Object payloadAudience = jwtUtils.getPayloadValue("aud", request);
-//		String requestedAudience = HttpServletUtils.getRefererBaseUrl(request);
-//		if ((requestedAudience != null && payloadAudience != null
-//				&& !payloadAudience.toString().equals(requestedAudience)) || (requestedAudience != payloadAudience)) {
-//			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Audience mismatch");
-//		}
+		try {
+			Object payloadAudience = jwtUtils.getPayloadValue("aud", request);
+			String requestedAudience = HttpServletUtils.getRefererBaseUrl(request);
+			if ((requestedAudience != null && payloadAudience != null
+					&& !payloadAudience.toString().equals(requestedAudience))
+					|| (requestedAudience != payloadAudience)) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Audience mismatch");
+			}
+		} catch (FormatMismatch e) {
+			e.printStackTrace();
+		}
 
 		chain.doFilter(req, res);
 	}
