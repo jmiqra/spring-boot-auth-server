@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -184,7 +185,7 @@ public class AccountController extends BaseController {
 	private AccountController addRequestDataOfPutUser(RequestDataCollectionResponseDto requestDataCollection) {
 		RequestBodyResponseDto<UserDetailsUpdateRequestDto> requestBody = new RequestBodyResponseDto<UserDetailsUpdateRequestDto>(
 				UserDetailsUpdateRequestDto.class);
-		URI updateUserUri = linkTo(methodOn(AccountController.class).updateUser(null, null)).toUri();
+		ControllerLinkBuilder updateUserUri = linkTo(methodOn(AccountController.class).updateUser(null, null));
 		requestDataCollection.addRequest(updateUserUri, org.springframework.http.HttpMethod.PUT, requestBody);
 		return this;
 	}
