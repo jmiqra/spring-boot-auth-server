@@ -38,6 +38,8 @@ public class AccountResource extends BaseResource {
 				.withMethod(HttpMethod.PUT));
 		add(new ExtendedLink(linkTo(methodOn(AccountController.class).forgotPassword(null)).withSelfRel())
 				.withMethod(HttpMethod.POST));
+		add(new ExtendedLink(linkTo(methodOn(AccountController.class).getRequests()).withRel("requests"))
+				.withMethod(HttpMethod.GET));
 
 		String baseUrl = HttpServletUtils.getBaseUrl();
 		add(new ExtendedLink(new Link(baseUrl + "/oauth/token").withRel("token")).withMethod(HttpMethod.GET)
